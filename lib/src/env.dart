@@ -8,14 +8,14 @@ class Env {
 
   List stack, calling = [], selectors = [];
 
-  Buffer buf;
+  StringBuffer buf;
 
   Block block;
 
   bool isURL = false;
 
-  Env({this.compress: 0, this.spaces: 2, this.path}):
-    stack = [new Scope()], buf = new Buffer();
+  Env([this.compress = 0, this.spaces = 2, this.path]):
+    stack = [new Scope()], buf = new StringBuffer();
 
   lookup(name) {
     var i = stack.length,
@@ -36,34 +36,13 @@ class Env {
       return '';
     }
     return times(times(' ', spaces), indents);
-    //return Strings.join(new List(indents), Strings.join(new List(spaces + 1), ' '));
   }
 }
 
-class Buffer implements StringBuffer {
-  StringBuffer buff;
-
-  Buffer(): buff = new StringBuffer();
-
-  operator + (obj) => buff.add(obj);
-
-  get length => buff.length;
-
-  get isEmpty => buff.isEmpty;
-
-  add(obj) => buff.add(obj);
-
-  clear() => buff.clear();
-
-  addAll(objects) => buff.addAll(objects);
-
-  addCharCode(int) => buff.addCharCode(int);
-
-  toString() => buff.toString();
-}
-
-times(str, n) {
-  var l = [];
-  l.insertRange(0, n, str);
-  return Strings.concatAll(l);
+times(s, n) {
+  var sb = new StringBuffer();
+  for(int i = 0; i < n; i++) {
+    sb.add(s);
+  }
+  return sb.toString();
 }
