@@ -4,9 +4,9 @@ class Definition extends Node implements Node {
   String name;
   Params params;
   Block block;
-  
+
   Definition(this.name, this.params, [this.block]);
-  
+
   get arity => params.length;
 
   eval(env) {

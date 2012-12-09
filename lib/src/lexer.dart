@@ -18,16 +18,16 @@ class Lexer {
   List stash = [],
     indentStack = [],
     prev;
-  
+
   num lineno = 1,
       prevIndents = 0;
-  
+
   bool isURL = false;
-  
+
   var indentRe;
-  
+
   Lexer(this.str);
-  
+
   Match match(type) {
     var re = {
       'sep': new RegExp(r'^;[ \t]*'),
@@ -49,7 +49,7 @@ class Lexer {
 
     return re[type].firstMatch(str);
   }
-  
+
   tokenize() {
     var tok,
         tmp = str,
@@ -63,30 +63,31 @@ class Lexer {
     prevIndents = 0;
 
     tokens.add(tok);
-    
+
     Rewriter rw = new Rewriter(tokens);
 
     return rw.rewrite();
   }
-  
+
   skip(len) {
     str = str.substring(len is Match
       ? len.group(0).length
       : len);
   }
-  
+
   next() {
     var t;
     var tok = (t = stashed()) is List ? t : advance();
-    
+
     switch (tok[0]) {
       case 'newline':
       case 'indent':
         ++lineno;
         break;
       case 'outdent':
-        if (prev[0] != 'outdent') 
+        if (prev[0] != 'outdent') {
           ++lineno;
+        }
         break;
     }
 
@@ -97,9 +98,9 @@ class Lexer {
     tok.add(lineno);
     return tok;
   }
-  
+
   stashed() => stash.length > 0 ? stash.removeAt(0) : false;
-  
+
   advance() {
     var t;
     if ((t = eos()) != null
@@ -119,10 +120,11 @@ class Lexer {
       ||(t = operator()) != null
       ||(t = space()) != null
       ||(t = selector()) != null
-        ) return t;
+        ) { return t;
+    }
     throw new Exception('parse error');
   }
-  
+
   eos() {
     if (str.length > 0) return;
     if (indentStack.length > 0) {
@@ -132,7 +134,7 @@ class Lexer {
       return ['eos'];
     }
   }
-  
+
   sep() {
     Match capture = match('sep');
     if (capture != null) {
@@ -140,7 +142,7 @@ class Lexer {
       return [';'];
     }
   }
-  
+
   url() {
     if (!isURL) return;
     Match capture = match('urlchars');
@@ -149,18 +151,19 @@ class Lexer {
       return ['literal', new Literal(capture.group(0))];
     }
   }
-  
+
   atkeyword() {
     Match capture = match('atkeyword');
     if (capture != null) {
       skip(capture);
       var type = capture.group(1);
-      if (capture.group(2) != null)
+      if (capture.group(2) != null) {
         type = 'keyframes';
+      }
       return ['atkeyword', type];
     }
   }
-  
+
   comment() {
     Match capture = match('comment');
     if (capture != null) {
@@ -170,7 +173,7 @@ class Lexer {
       return ['comment', new Comment(capture.group(0))];
     }
   }
-  
+
   newline() {
     var re, capture;
 
@@ -185,8 +188,9 @@ class Lexer {
         capture = re.firstMatch(str);
       }
 
-      if (capture != null && capture.group(1).length > 0)
+      if (capture != null && capture.group(1).length > 0) {
         indentRe = re;
+      }
     }
 
     if (capture != null) {
@@ -194,7 +198,7 @@ class Lexer {
         , indents = capture.group(1).length;
 
       skip(capture);
-      
+
       if (str.length > 0 && (str[0] == ' ' || str[0] == '\t')) {
         throw new Exception('Invalid indentation. You can use tabs or spaces to indent, but not both.');
       }
@@ -221,7 +225,7 @@ class Lexer {
       return tok;
     }
   }
-  
+
   important() {
     Match capture = match('important');
     if (capture != null) {
@@ -229,7 +233,7 @@ class Lexer {
       return ['id', '!important'];
     }
   }
-  
+
   fn() {
     Match capture = match('function');
     if (capture != null) {
@@ -239,7 +243,7 @@ class Lexer {
       return ['fn', name];
     }
   }
-  
+
   brace() {
     Match capture = match('brace');
     if (capture != null) {
@@ -247,18 +251,19 @@ class Lexer {
       return [capture.group(1)];
     }
   }
-  
+
   paren() {
     Match capture = match('paren');
     if (capture != null) {
       var paren = capture.group(1);
       skip(capture);
-      if (paren == ')')
+      if (paren == ')') {
         isURL = false;
+      }
       return [paren];
     }
   }
-  
+
   color() {
     Match capture = match('color');
     if (capture != null) {
@@ -266,7 +271,7 @@ class Lexer {
       return ['color', new Color(capture.group(1))];
     }
   }
-  
+
   string() {
     Match capture = match('string');
     if (capture != null) {
@@ -277,7 +282,7 @@ class Lexer {
       return ['string', new Str(s, quote)];
     }
   }
-  
+
   dimension() {
     Match capture = match('dimension');
     if (capture != null) {
@@ -285,7 +290,7 @@ class Lexer {
       return ['dimension', new Dimension(capture.group(1), capture.group(2))];
     }
   }
-  
+
   ident() {
     Match capture = match('ident');
     if (capture != null) {
@@ -293,7 +298,7 @@ class Lexer {
       return ['ident', capture.group(1)];
     }
   }
-  
+
   operator() {
     Match capture = match('operator');
     if (capture != null) {
@@ -303,7 +308,7 @@ class Lexer {
       return [op];
     }
   }
-  
+
   space() {
     Match capture = match('space');
     if (capture != null) {
@@ -311,7 +316,7 @@ class Lexer {
       return ['space'];
     }
   }
-  
+
   selector() {
     Match capture = match('selector');
     if (capture != null) {
@@ -320,5 +325,5 @@ class Lexer {
       return ['selector', selector];
     }
   }
-  
+
 }

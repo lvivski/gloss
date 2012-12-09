@@ -8,7 +8,7 @@ class Parser {
   Node root;
   num parens = 0;
   bool operand = false;
-  
+
   Parser(str) {
     this.tokens = new Lexer(str).tokenize();
     this.root = new Stylesheet();
@@ -16,90 +16,98 @@ class Parser {
     this.parens = 0;
     this.state = ['root'];
   }
-  
-  get currentState => state[state.length - 1];
-  
+
+  get currentState => state.last;
+
   parse() {
     var block = root;
     while (peek[0] != 'eos') {
-      if (accept('newline') != null)
+      if (accept('newline') != null) {
         continue;
+      }
       var smt = statement();
       accept(';');
-      if (smt == null)
+      if (smt == null) {
         error('unexpected token {peek}, not allowed at the root level');
+      }
       block.push(smt);
     }
     return block;
   }
-  
+
   error(msg) {
     var tag = peek[0],
         val = peek[1] == null
           ? ''
           : ' $peek';
-    if (val.trim() == tag.trim())
+    if (val.trim() == tag.trim()) {
       val = '';
+    }
     throw new Exception(msg.replaceAll('{peek}', '"$tag$val"'));
   }
-  
+
   get peek => tokens[0];
-  
+
   get next {
     var tok = stash.length > 0
       ? stash.removeLast()
       : tokens.removeAt(0);
-      
+
     return tok;
   }
-  
+
   accept(tag) {
     if (peek[0] == tag) {
       return next;
     }
   }
-  
+
   expect(tag) {
     if (peek[0] != tag) {
       error('expected "$tag", got {peek}');
     }
     return next;
   }
-  
+
   lookahead(n) => tokens[--n];
-  
+
   lineContains(tag) {
     var i = 1,
         la;
 
     while (i++ < tokens.length) {
       la = lookahead(i++);
-      if (['indent', 'outdent', 'newline'].indexOf(la[0]) != -1)
+      if (['indent', 'outdent', 'newline'].indexOf(la[0]) != -1) {
         return false;
-      if (la[0] == tag)
+      }
+      if (la[0] == tag) {
         return true;
+      }
     }
     return false;
   }
-  
+
   skipWhitespace() {
-    while (['space', 'indent', 'outdent', 'newline'].indexOf(peek[0]) != -1)
+    while (['space', 'indent', 'outdent', 'newline'].indexOf(peek[0]) != -1) {
       next;
+    }
   }
 
   skipNewlines() {
-    while (peek[0] == 'newline')
+    while (peek[0] == 'newline') {
       next;
+    }
   }
 
   skipSpaces() {
-    while (peek[0] == 'space')
+    while (peek[0] == 'space') {
       next;
+    }
   }
-  
+
   looksLikeDefinition(i) {
-    return lookahead(i)[0] === 'indent'
-          || lookahead(i)[0] === '{';
+    return lookahead(i)[0] == 'indent'
+          || lookahead(i)[0] == '{';
   }
 
   statement() {
@@ -121,7 +129,7 @@ class Parser {
         error('unexpected {peek}');
     }
   }
-  
+
   selector() {
     var ruleset = new Ruleset();
 
@@ -136,23 +144,25 @@ class Parser {
 
     return ruleset;
   }
-  
+
   block() {
-    var smt
-      , b = new Block();
+    var smt,
+        b = new Block();
 
     skipNewlines();
     accept('{');
     skipWhitespace();
 
-    while (peek[0] !== '}') {
-      if (accept('newline') != null)
+    while (peek[0] != '}') {
+      if (accept('newline') != null) {
         continue;
+      }
       smt = statement();
       accept(';');
       skipWhitespace();
-      if (smt == null) 
+      if (smt == null) {
         error('unexpected token {peek} in block');
+      }
       b.push(smt);
     }
 
@@ -161,7 +171,7 @@ class Parser {
     skipSpaces();
     return b;
   }
-  
+
   dimension() {
     var ruleset = new Ruleset();
 
@@ -176,7 +186,7 @@ class Parser {
 
     return ruleset;
   }
-  
+
   atkeyword() {
     var rule = '@#{next[1]}';
     while (peek[0] != '{') {
@@ -190,13 +200,14 @@ class Parser {
     state.removeLast();
     return atrule;
   }
-  
+
   ident() {
     var i = 2,
         la = lookahead(i)[0];
 
-    while (la == 'space')
+    while (la == 'space') {
       la = lookahead(++i)[0];
+    }
 
     switch (la) {
       case '=':
@@ -227,7 +238,7 @@ class Parser {
         }
     }
   }
-  
+
   declaration() {
     var ident = accept('ident')[1],
         decl = new Declaration(ident),
@@ -238,14 +249,15 @@ class Parser {
 
     state.add('declaration');
     decl.value = list();
-    if (decl.value.isEmpty) 
+    if (decl.value.isEmpty) {
       ret = ident;
+    }
     state.removeLast();
     accept(';');
 
     return ret;
   }
-  
+
   list() {
     var node = expression();
     while (accept(',') != null || accept('indent') != null) {
@@ -260,7 +272,7 @@ class Parser {
     }
     return node;
   }
-  
+
   assignment() {
     var name = expect('ident')[1];
 
@@ -268,19 +280,17 @@ class Parser {
     expect('=');
 
     state.add('assignment');
-
     var expr = list(),
         node = new Ident(name, expr);
-
     state.removeLast();
 
     return node;
   }
-  
+
   expression() {
     var node,
         expr = new Expression();
-    
+
     state.add('expression');
     while ((node = additive()) != null) {
       expr.push(node);
@@ -288,11 +298,11 @@ class Parser {
     state.removeLast();
     return expr;
   }
-  
+
   additive() {
     var op,
         node = multiplicative();
-    
+
     while ((op = accept('+')) != null || (op = accept('-')) != null) {
       operand = true;
       node = new Binop(op[0], node, multiplicative());
@@ -313,15 +323,16 @@ class Parser {
         operand = false;
         return node;
       } else {
-        if (node != null) 
+        if (node != null) {
           error('illegal unary "$op", missing left-hand operand');
+        }
         node = new Binop(op[0], node, primary());
         operand = false;
       }
     }
     return node;
   }
-  
+
   primary() {
     var op,
         node;
@@ -331,8 +342,9 @@ class Parser {
       var expr = expression();
       expect(')');
       --parens;
-      if(accept('%') != null) 
+      if(accept('%') != null) {
         expr.push('%');
+      }
       return expr;
     }
 
@@ -344,33 +356,35 @@ class Parser {
         return next[1];
       case 'ident':
         return ident();
-      case 'function':
+      case 'fn':
         return fncall();
     }
   }
-  
+
   fn() {
     var p = 1,
         i = 2,
-        tok;
-    
-    out:
+        tok,
+        out = false;
+
     while ((tok = this.lookahead(i++)) != null) {
-      switch (tok.tag) {
-        case 'function':
+      switch (tok[0]) {
+        case 'fn':
         case '(':
           ++p;
           break;
         case ')':
-          if (--p == 0)
-            break out;
+          if (--p == 0) {
+            out = true;
+          }
           break;
         case 'eos':
           error('failed to find closing paren ")"');
           break;
       }
+      if (out) break;
     }
-    switch (this.currentState) {
+    switch (currentState) {
       case 'expression':
         return fncall();
       default:
@@ -379,7 +393,7 @@ class Parser {
           : expression();
     }
   }
-  
+
   definition() {
     var name = expect('fn')[1];
 
@@ -396,7 +410,7 @@ class Parser {
     state.removeLast();
     return f;
   }
-  
+
   fncall() {
     var name = expect('fn')[1];
     state.add('function arguments');
@@ -407,7 +421,7 @@ class Parser {
     state.removeLast();
     return new Call(name, a);
   }
-  
+
   params() {
     var tok,
         node,
@@ -425,7 +439,7 @@ class Parser {
     }
     return p;
   }
-  
+
   args() {
     var a = new Arguments(),
         keyword;
@@ -439,7 +453,7 @@ class Parser {
         a.push(expression());
       }
     } while (accept(',') != null);
-    
+
     return a;
   }
 

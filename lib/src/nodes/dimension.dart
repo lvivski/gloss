@@ -30,20 +30,20 @@ Map coercion = {
 class Dimension extends Node implements Node {
   num value;
   String unit;
-  
+
   Dimension(value, [unit]) {
     this.value = int.parse(value);
     this.unit = unit != null ? unit : '';
   }
-  
+
   operate(String op, Dimension other) {
-    if ((op === '-' || op === '+') && other.unit === '%') {
+    if ((op == '-' || op == '+') && other.unit == '%') {
       other.value = value * (value / 100);
     } else {
       other = coerce(other);
     }
     return new Dimension(calc(op, value, other.value),
-                         unit !== null ? unit : other.unit );
+                         unit != null ? unit : other.unit );
   }
 
   coerce(other) {
@@ -52,11 +52,11 @@ class Dimension extends Node implements Node {
       if (coercion[unit] && coercion[unit][other.unit]) {
         multiplier = coercion[unit][other.unit];
       }
-      return new Dimension(other.value * multiplier, unit !== null ? unit : other.unit);
+      return new Dimension(other.value * multiplier, unit != null ? unit : other.unit);
     }
     return new Dimension(double.parse(other), this.unit);
   }
-  
+
   calc(op, a, b) {
     switch (op) {
       case '+':
@@ -76,8 +76,9 @@ class Dimension extends Node implements Node {
     if (env.compress > 0) {
       var isFloat = n != (n | 0);
 
-      if (unit !== '%' && n === 0)
+      if (unit != '%' && n == 0) {
         return '0';
+      }
 
       if (isFloat && n < 1 && n > -1) {
         return '${n.toString().replaceFirst('0.', '.')}$unit';

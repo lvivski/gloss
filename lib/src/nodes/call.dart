@@ -3,16 +3,17 @@ part of nodes;
 class Call {
   String name;
   Arguments args;
-  
+
   Call(this.name, this.args);
-  
+
   eval(env) {
     args = args.eval(env);
     var fn = env.lookup(name);
-    if (fn) {
+    if (fn != null) {
       try {
-        if (fn.params) // user defined mixin
+        if (fn.params != null) { // user defined mixin
           return mixin(fn, env);
+        }
         return bif(fn, env);
       } catch (e) {
         throw e;
@@ -21,15 +22,16 @@ class Call {
       return this;
     }
   }
-  
+
   css([env]) {
-    if (env === null)
+    if (env == null) {
       env = {};
+    }
     var a = args.nodes.map((arg) => arg.css(env));
     a = Strings.join(a, env.compress > 4 ? ',' : ', ');
-    return '$name($args)';
+    return '$name($a)';
   }
-  
+
   mixin(fn, env) {
     var scope = new Scope()
       , i = 0
@@ -56,7 +58,7 @@ class Call {
 
     return Null;
   }
-  
+
   bif(fn, env) {
     var a = args.nodes.map((arg) {
       return arg.nodes[0].nodes ? arg.nodes[0].nodes[0] : arg.nodes[0];

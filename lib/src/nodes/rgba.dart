@@ -2,16 +2,16 @@ part of nodes;
 
 class RGBA extends Node implements Color {
   num r, g, b, a;
-  
+
   RGBA(r, g, b, a) {
     this.r = clamp(r);
     this.g = clamp(g);
     this.b = clamp(b);
     this.a = clampAlpha(a);
   }
-  
+
   css(env) {
-    if (this.a === 1) {
+    if (this.a == 1) {
       String rp = pad(r),
           gp = pad(g),
           bp = pad(b);
@@ -25,7 +25,7 @@ class RGBA extends Node implements Color {
       return 'rgba($r,$g,$b,${a.toStringAsFixed(3)})';
     }
   }
-  
+
   static fromHSLA(hsla) {
     var h = hsla.h / 360,
         s = hsla.s / 100,
@@ -35,16 +35,19 @@ class RGBA extends Node implements Color {
 
     var q = l < 0.5 ? l * (s + 1) : l + s - l * s,
         p = l * 2 - q;
-    
+
     hue(h) {
       if (h < 0) ++h;
       if (h > 1) --h;
-      if (h < 1 / 6) 
+      if (h < 1 / 6) {
         return p + (q - p) * h * 6;
-      if (h < 1 / 2)
+      }
+      if (h < 1 / 2) {
         return q;
-      if (h < 2 / 3)
+      }
+      if (h < 2 / 3) {
         return p + (q - p) * (2 / 3 - h) * 6;
+      }
       return p;
     }
 

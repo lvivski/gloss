@@ -2,18 +2,18 @@ part of nodes;
 
 class HSLA extends Node implements Node {
   num h, s, l, a;
-  
+
   HSLA(h,s,l,a) {
     this.h = clampDegrees(h);
     this.s = clampPercentage(s);
     this.l = clampPercentage(l);
     this.a = clampAlpha(a);
   }
-  
+
   css(env) {
     return 'hsla($h,${s.toStringAsFixed(0)},${l.toStringAsFixed(0)},a)';
   }
-  
+
   static fromRGBA(rgba) {
     num r = rgba.r / 255,
         g = rgba.g / 255,

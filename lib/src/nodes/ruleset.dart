@@ -3,14 +3,15 @@ part of nodes;
 class Ruleset implements Node {
   List selectors;
   Block block;
-  
+
   Ruleset([this.selectors, this.block]) {
-    if (this.selectors == null) 
+    if (this.selectors == null) {
       this.selectors = [];
+    }
   }
-  
+
   push(selector) => selectors.add(selector);
-  
+
   eval(env) {
     selectors = selectors.map((selector) => selector.eval(env));
     block = block.eval(env);
@@ -28,11 +29,11 @@ class Ruleset implements Node {
     block.css(env);
     stack.removeLast();
   }
-  
+
   normalize(stack, env) {
     var selectors = [],
         buf = [];
-    
+
     compile(arr, i) {
       if (i > 0) {
         arr[i].forEach((selector) {
@@ -46,7 +47,7 @@ class Ruleset implements Node {
           selector = selector.css(env);
           if (buf.length > 0) {
             for (var i = 0, len = buf.length; i < len; i++) {
-              if (buf[i].indexOf('&') !== -1) {
+              if (buf[i].indexOf('&') != -1) {
                 selector = buf[i].replaceAll('&', selector).trim();
               } else {
                 selector = selector.concat(' ${buf[i].trim()}');
@@ -57,10 +58,10 @@ class Ruleset implements Node {
         });
       }
     }
-    
+
     compile(stack, stack.length - 1);
-  
+
     return selectors;
   }
-  
+
 }

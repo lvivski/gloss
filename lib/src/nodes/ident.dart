@@ -3,11 +3,11 @@ part of nodes;
 class Ident implements Node {
   String name;
   var value;
-  
+
   Ident(this.name, [this.value]);
-  
+
   eval(env) {
-    if (value === null) {
+    if (value == null) {
       value = env.lookup(name);
       return value != null ? value.eval(env) : this;
     } else {

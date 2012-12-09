@@ -3,9 +3,9 @@ part of nodes;
 class Binop extends Node implements Node {
   String op;
   Node left, right;
-  
+
   Binop(this.op, this.left, this.right);
-  
+
   eval(env) {
     var l = left.eval(env),
       r = right.eval(env);

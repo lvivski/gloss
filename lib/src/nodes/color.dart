@@ -8,5 +8,5 @@ class Color {
         b = int.parse('0x${single ? '${hash[2]}${hash[2]}' : hash.substr(4, 2)}');
 
     return new RGBA(r, g, b, 1);
-  } 
+  }
 }

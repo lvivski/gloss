@@ -3,18 +3,20 @@ part of nodes;
 class Block implements Node {
   List nodes = [];
   num index = 0;
-  
+
   Block([this.nodes]) {
-    if(this.nodes == null)
+    if(this.nodes == null) {
       this.nodes = [];
+    }
   }
-  
+
   push(node) => nodes.add(node);
-  
+
   get hasDeclarations {
     for (var i = 0, len = nodes.length; i < len; ++i)
-      if (nodes[i] is Declaration)
+      if (nodes[i] is Declaration) {
         return true;
+      }
     return false;
   }
 
@@ -22,7 +24,7 @@ class Block implements Node {
 
   eval(env) {
     env.block = this;
-    
+
     for (index = 0; index < nodes.length; ++index) {
       nodes[index] = nodes[index].eval(env);
     }
@@ -32,14 +34,14 @@ class Block implements Node {
           compressed,
           node,
           prop;
-      
+
       for (var i = 0, prop, len = nodes.length; i < len; ++i) {
         node = nodes[i];
         if (
           node is Declaration
           && shorthands[prop = node.property.replaceAll(new RegExp(r'-?(top|right|bottom|left)'), '')]
         ) {
-          if (nodesMap[prop] === null) {
+          if (nodesMap[prop] == null) {
             nodesMap[prop] = [];
           }
           nodesMap[prop].add({
@@ -66,7 +68,7 @@ class Block implements Node {
 
     return this;
   }
-  
+
   css(env) {
     var node;
 
@@ -77,23 +79,25 @@ class Block implements Node {
       for (var i = 0, len = nodes.length; i < len; ++i) {
         node = nodes[i];
         if (node is Declaration) {
-           arr.add(node.css(env));          
+           arr.add(node.css(env));
         }
       }
       --env.indents;
-      if (env.compress < 4)
+      if (env.compress < 4) {
         arr.add('');
+      }
       env.buf.add(Strings.join(arr, env.compress > 4 ? ';' : ';\n'));
       env.buf.add('${env.compress == 4 ? '\n' : ''}${env.indent}${env.compress > 4 ? '}' : '}\n'}');
     }
 
     for (var i = 0, len = nodes.length; i < len; ++i) {
       node = nodes[i];
-      if (node is Ruleset || node is Atrule || node is Block)
+      if (node is Ruleset || node is Atrule || node is Block) {
         node.css(env);
+      }
     }
   }
-  
+
   compressProperties(arr) {
     if (arr.length < 2) return;
 
@@ -107,26 +111,30 @@ class Block implements Node {
       } else {
         toRemove.add(node.index);
       }
-      if (node.side === -1) {
+      if (node.side == -1) {
         expr = node.value;
-        if (!expr.nodes[1])
+        if (!expr.nodes[1]) {
           expr.add(expr.nodes[0]);
-        
-        if (!expr.nodes[2])
+        }
+
+        if (!expr.nodes[2]) {
           expr.add(expr.nodes[0]);
-        
-        if (!expr.nodes[3])
+        }
+
+        if (!expr.nodes[3]) {
           expr.add(expr.nodes[1]);
+        }
       } else {
         expr.nodes[node.side] = node.value.nodes[0];
       }
     });
 
-    if (expr.nodes.every((_) => !!_))
+    if (expr.nodes.every((_) => !!_)) {
       return {
         'value': expr,
         'index': index,
         'toRemove': toRemove
       };
+    }
   }
 }
