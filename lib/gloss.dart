@@ -19,11 +19,11 @@ parse(str) {
 main() {
   var gloss ='''
 .a > .b
-  color: #fff
-  border: 1px solid red
-  .b, .c
+  .c, .d
     color: #fff
     border: 1px dashed red
+  color: #fff
+  border: 1px solid red
 '''; 
   print(parse(gloss)); 
 }

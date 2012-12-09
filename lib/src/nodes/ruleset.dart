@@ -21,8 +21,8 @@ class Ruleset implements Node {
     var stack = env.selectors;
     stack.add(selectors);
     if (block.hasDeclarations) {
-      var selectors = normalize(stack, env);
-      env.buf.add(env.indent.concat(Strings.join(selectors, env.compress > 3 ? ',' : ',\n${env.indent}')));
+      var sel = normalize(stack, env);
+      env.buf.add(env.indent.concat(Strings.join(sel, env.compress > 3 ? ',' : ',\n${env.indent}')));
     }
 
     block.css(env);
@@ -37,23 +37,19 @@ class Ruleset implements Node {
       if (i > 0) {
         arr[i].forEach((selector) {
           selector = selector.css(env);
-          if (selector != null) {
-            buf.insertRange(0, 1, selector);
-            compile(arr, i - 1);
-            buf.removeAt(0);
-          } else {
-            selectors.add(selector);
-          }
+          buf.insertRange(0, 1, selector);
+          compile(arr, i - 1);
+          buf.removeAt(0);
         });
       } else {
         arr[0].forEach((selector) {
           selector = selector.css(env);
           if (buf.length > 0) {
-            for (var i = 0, len = buf.length; i < len; ++i) {
+            for (var i = 0, len = buf.length; i < len; i++) {
               if (buf[i].indexOf('&') !== -1) {
                 selector = buf[i].replaceAll('&', selector).trim();
               } else {
-                selector.concat(' ${buf[i].trim()}');
+                selector = selector.concat(' ${buf[i].trim()}');
               }
             }
           }

@@ -123,14 +123,11 @@ class Parser {
   }
   
   selector() {
-    var ruleset = new Ruleset(),
-        sel = new Selector();
-    
-    ruleset.push(sel);
+    var ruleset = new Ruleset();
 
     do {
       this.accept('newline');
-      sel.push(next[1]);
+      ruleset.push(new Selector(next[1]));
     } while (accept(',') != null);
 
     state.add('selector');

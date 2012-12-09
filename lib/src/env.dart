@@ -3,7 +3,7 @@ library env;
 import 'nodes.dart';
 
 class Env {
-  num compress, spaces, indents = 1;
+  num compress, spaces, indents = 0;
   String path;
   
   List stack, calling = [], selectors = [];
@@ -33,8 +33,8 @@ class Env {
   get indent {
     if (compress > 4)
       return '';
+    return times(times(' ', spaces), indents);
     //return Strings.join(new List(indents), Strings.join(new List(spaces + 1), ' '));
-    return '';
   }
 }
 
@@ -58,4 +58,10 @@ class Buffer implements StringBuffer {
   addCharCode(int) => buff.addCharCode(int);
   
   toString() => buff.toString();
+}
+
+times(str, n) {
+  var l = [];
+  l.insertRange(0, n, str);
+  return Strings.concatAll(l);
 }
