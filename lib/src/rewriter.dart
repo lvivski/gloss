@@ -1,31 +1,31 @@
 library rewriter;
 
 class Rewriter {
-  List tokens;
+  List _tokens;
 
   const EXPRESSION_START = const ['{', 'indent'],
     EXPRESSION_END = const ['}', 'outdent'],
     LINEBREAKS = const ['newline', 'indent', 'outdent'];
 
-  Rewriter(this.tokens);
+  Rewriter(this._tokens);
 
   rewrite() {
-    return addImplicitBraces()
-           .findSelectors()
-           .tokens;
+    return _addImplicitBraces()
+           ._findSelectors()
+           ._tokens;
   }
 
-  scan(block) {
+  _scan(block) {
     var i = 0,
         token;
-    while (i < tokens.length) {
-      token = tokens[i];
-      i += block(token, i, tokens);
+    while (i < _tokens.length) {
+      token = _tokens[i];
+      i += block(token, i, _tokens);
     }
     return this;
   }
 
-  addImplicitBraces() {
+  _addImplicitBraces() {
     var stack = [],
         sameLine = true,
         tok,
@@ -38,10 +38,10 @@ class Rewriter {
         },
         action = (token, i) {
           var tok = ['}', false, token[2]];
-          return tokens.insertRange(i, 1, tok);
+          return _tokens.insertRange(i, 1, tok);
         };
 
-    return scan((token, i, tokens) {
+    return _scan((token, i, tokens) {
       var tag = token[0],
           last, tok;
 
@@ -69,8 +69,8 @@ class Rewriter {
     });
   }
 
-  findSelectors() {
-    return scan((token, i, tokens) {
+  _findSelectors() {
+    return _scan((token, i, tokens) {
       if (token[0] == 'ident' && (tokens[i + 1][0] == '{')) {
         token[0] = 'selector';
       }
@@ -86,8 +86,8 @@ class Rewriter {
   detectEnd(i, condition, action) {
     var levels = 0,
         token;
-    while (i < tokens.length) {
-      token = tokens[i];
+    while (i < _tokens.length) {
+      token = _tokens[i];
       if (levels == 0 && condition(token, i)) {
         return action(token, i);
       }

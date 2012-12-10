@@ -38,11 +38,11 @@ class Stylesheet implements Node {
     nodes.forEach((node) {
       var ret = node.css(env);
       if (ret != null) {
-        env.buf.add('$ret\n');
+        env.buff.add('$ret\n');
       }
     });
 
-    return env.buf;
+    return env.buff;
   }
 
 }

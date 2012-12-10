@@ -3,19 +3,19 @@ library env;
 import 'nodes.dart';
 
 class Env {
-  num compress, spaces, indents = 0;
+  num compress, _spaces, indents = 0;
   String path;
 
   List stack, calling = [], selectors = [];
 
-  StringBuffer buf;
+  StringBuffer buff;
 
   Block block;
 
   bool isURL = false;
 
-  Env([this.compress = 0, this.spaces = 2, this.path]):
-    stack = [new Scope()], buf = new StringBuffer();
+  Env([this.compress = 0, this._spaces = 2, this.path]):
+    stack = [new Scope()], buff = new StringBuffer();
 
   lookup(name) {
     var i = stack.length,
@@ -35,7 +35,7 @@ class Env {
     if (compress > 4) {
       return '';
     }
-    return times(times(' ', spaces), indents);
+    return times(times(' ', _spaces), indents);
   }
 }
 

@@ -14,21 +14,21 @@ List units = [
 ];
 
 class Lexer {
-  String str;
-  List stash = [],
-    indentStack = [],
-    prev;
+  String _str;
+  List _stash = [],
+    _indentStack = [],
+    _prev;
 
   num lineno = 1,
-      prevIndents = 0;
+      _prevIndents = 0;
 
-  bool isURL = false;
+  bool _isURL = false;
 
-  var indentRe;
+  RegExp _indentRe;
 
-  Lexer(this.str);
+  Lexer(this._str);
 
-  Match match(type) {
+  Match _match(type) {
     var re = {
       'sep': new RegExp(r'^;[ \t]*'),
       'space': new RegExp(r'^([ \t]+)'),
@@ -47,20 +47,20 @@ class Lexer {
       'selector': new RegExp(r'^[^{\n,]+')
     };
 
-    return re[type].firstMatch(str);
+    return re[type].firstMatch(_str);
   }
 
   tokenize() {
     var tok,
-        tmp = str,
+        tmp = _str,
         tokens = [];
 
-    while ((tok = next())[0] != 'eos') {
+    while ((tok = next)[0] != 'eos') {
       tokens.add(tok);
     }
 
-    str = tmp;
-    prevIndents = 0;
+    _str = tmp;
+    _prevIndents = 0;
 
     tokens.add(tok);
 
@@ -69,15 +69,9 @@ class Lexer {
     return rw.rewrite();
   }
 
-  skip(len) {
-    str = str.substring(len is Match
-      ? len.group(0).length
-      : len);
-  }
-
-  next() {
+  get next {
     var t;
-    var tok = (t = stashed()) is List ? t : advance();
+    var tok = (t = _stashed()) is List ? t : _advance();
 
     switch (tok[0]) {
       case 'newline':
@@ -85,138 +79,144 @@ class Lexer {
         ++lineno;
         break;
       case 'outdent':
-        if (prev[0] != 'outdent') {
+        if (_prev[0] != 'outdent') {
           ++lineno;
         }
         break;
     }
 
-    prev = tok;
+    _prev = tok;
     if (tok.length < 2) {
       tok.add(null);
     }
     tok.add(lineno);
     return tok;
   }
+  
+  _skip(len) {
+    _str = _str.substring(len is Match
+      ? len.group(0).length
+      : len);
+  }
 
-  stashed() => stash.length > 0 ? stash.removeAt(0) : false;
+  _stashed() => _stash.length > 0 ? _stash.removeAt(0) : false;
 
-  advance() {
+  _advance() {
     var t;
-    if ((t = eos()) != null
-      ||(t = sep()) != null
-      ||(t = url()) != null
-      ||(t = atkeyword()) != null
-      ||(t = comment()) != null
-      ||(t = newline()) != null
-      ||(t = important()) != null
-      ||(t = fn()) != null
-      ||(t = brace()) != null
-      ||(t = paren()) != null
-      ||(t = color()) != null
-      ||(t = string()) != null
-      ||(t = dimension()) != null
-      ||(t = ident()) != null
-      ||(t = operator()) != null
-      ||(t = space()) != null
-      ||(t = selector()) != null
+    if ((t = _eos()) != null
+      ||(t = _sep()) != null
+      ||(t = _url()) != null
+      ||(t = _atkeyword()) != null
+      ||(t = _comment()) != null
+      ||(t = _newline()) != null
+      ||(t = _important()) != null
+      ||(t = _fn()) != null
+      ||(t = _brace()) != null
+      ||(t = _paren()) != null
+      ||(t = _color()) != null
+      ||(t = _string()) != null
+      ||(t = _dimension()) != null
+      ||(t = _ident()) != null
+      ||(t = _operator()) != null
+      ||(t = _space()) != null
+      ||(t = _selector()) != null
         ) { return t;
     }
     throw new Exception('parse error');
   }
 
-  eos() {
-    if (str.length > 0) return;
-    if (indentStack.length > 0) {
-      indentStack.removeAt(0);
+  _eos() {
+    if (_str.length > 0) return;
+    if (_indentStack.length > 0) {
+      _indentStack.removeAt(0);
       return ['outdent'];
     } else {
       return ['eos'];
     }
   }
 
-  sep() {
-    Match capture = match('sep');
-    if (capture != null) {
-      skip(capture);
+  _sep() {
+    Match match = _match('sep');
+    if (match != null) {
+      _skip(match);
       return [';'];
     }
   }
 
-  url() {
-    if (!isURL) return;
-    Match capture = match('urlchars');
-    if (capture != null) {
-      skip(capture);
-      return ['literal', new Literal(capture.group(0))];
+  _url() {
+    if (!_isURL) return;
+    Match match = _match('urlchars');
+    if (match != null) {
+      _skip(match);
+      return ['literal', new Literal(match.group(0))];
     }
   }
 
-  atkeyword() {
-    Match capture = match('atkeyword');
-    if (capture != null) {
-      skip(capture);
-      var type = capture.group(1);
-      if (capture.group(2) != null) {
+  _atkeyword() {
+    Match match = _match('atkeyword');
+    if (match != null) {
+      _skip(match);
+      var type = match.group(1);
+      if (match.group(2) != null) {
         type = 'keyframes';
       }
       return ['atkeyword', type];
     }
   }
 
-  comment() {
-    Match capture = match('comment');
-    if (capture != null) {
-      var lines = capture.group(0).split('\n').length;
+  _comment() {
+    Match match = _match('comment');
+    if (match != null) {
+      var lines = match.group(0).split('\n').length;
       lineno += lines;
-      skip(capture);
-      return ['comment', new Comment(capture.group(0))];
+      _skip(match);
+      return ['comment', new Comment(match.group(0))];
     }
   }
 
-  newline() {
-    var re, capture;
+  _newline() {
+    var re, match;
 
-    if (indentRe != null) {
-      capture = indentRe.firstMatch(str);
+    if (_indentRe != null) {
+      match = _indentRe.firstMatch(_str);
     } else {
       re = new RegExp(r'^\n([\t]*)[ \t]*', multiLine: true); // tabs
-      capture = re.firstMatch(str);
+      match = re.firstMatch(_str);
 
-      if (capture != null && capture.group(1).length == 0) {
+      if (match != null && match.group(1).length == 0) {
         re = new RegExp(r'^\n([ \t]*)', multiLine: true); // spaces
-        capture = re.firstMatch(str);
+        match = re.firstMatch(_str);
       }
 
-      if (capture != null && capture.group(1).length > 0) {
-        indentRe = re;
+      if (match != null && match.group(1).length > 0) {
+        _indentRe = re;
       }
     }
 
-    if (capture != null) {
+    if (match != null) {
       var tok
-        , indents = capture.group(1).length;
+        , indents = match.group(1).length;
 
-      skip(capture);
+      _skip(match);
 
-      if (str.length > 0 && (str[0] == ' ' || str[0] == '\t')) {
+      if (_str.length > 0 && (_str[0] == ' ' || _str[0] == '\t')) {
         throw new Exception('Invalid indentation. You can use tabs or spaces to indent, but not both.');
       }
 
-      if (str.length > 0 && str[0] == '\n') {
+      if (_str.length > 0 && _str[0] == '\n') {
         ++lineno;
-        return advance();
+        return _advance();
       }
       // Outdent
-      if (indentStack.length > 0 && indents < indentStack[0]) {
-        while (indentStack.length > 0 && indentStack[0] > indents) {
-          stash.add(['outdent']);
-          indentStack.removeAt(0);
+      if (_indentStack.length > 0 && indents < _indentStack[0]) {
+        while (_indentStack.length > 0 && _indentStack[0] > indents) {
+          _stash.add(['outdent']);
+          _indentStack.removeAt(0);
         }
-        tok = stash.removeLast();
+        tok = _stash.removeLast();
       // Indent
-      } else if (indents > 0 && indents != (indentStack.length > 0 ? indentStack[0] : false)) {
-        indentStack.insertRange(0, 1, indents);
+      } else if (indents > 0 && indents != (_indentStack.length > 0 ? _indentStack[0] : false)) {
+        _indentStack.insertRange(0, 1, indents);
         tok = ['indent'];
       // Newline
       } else {
@@ -226,102 +226,102 @@ class Lexer {
     }
   }
 
-  important() {
-    Match capture = match('important');
-    if (capture != null) {
-      skip(capture);
+  _important() {
+    Match match = _match('important');
+    if (match != null) {
+      _skip(match);
       return ['id', '!important'];
     }
   }
 
-  fn() {
-    Match capture = match('function');
-    if (capture != null) {
-      skip(capture);
-      var name = capture.group(1);
-      isURL = 'url' == name;
+  _fn() {
+    Match match = _match('function');
+    if (match != null) {
+      _skip(match);
+      var name = match.group(1);
+      _isURL = 'url' == name;
       return ['fn', name];
     }
   }
 
-  brace() {
-    Match capture = match('brace');
-    if (capture != null) {
-      skip(1);
-      return [capture.group(1)];
+  _brace() {
+    Match match = _match('brace');
+    if (match != null) {
+      _skip(1);
+      return [match.group(1)];
     }
   }
 
-  paren() {
-    Match capture = match('paren');
-    if (capture != null) {
-      var paren = capture.group(1);
-      skip(capture);
+  _paren() {
+    Match match = _match('paren');
+    if (match != null) {
+      var paren = match.group(1);
+      _skip(match);
       if (paren == ')') {
-        isURL = false;
+        _isURL = false;
       }
       return [paren];
     }
   }
 
-  color() {
-    Match capture = match('color');
-    if (capture != null) {
-      skip(capture);
-      return ['color', new Color(capture.group(1))];
+  _color() {
+    Match match = _match('color');
+    if (match != null) {
+      _skip(match);
+      return ['color', new Color(match.group(1))];
     }
   }
 
-  string() {
-    Match capture = match('string');
-    if (capture != null) {
-      var s = capture.group(1),
-        quote = capture.group(0)[0];
-      skip(capture);
+  _string() {
+    Match match = _match('string');
+    if (match != null) {
+      var s = match.group(1),
+        quote = match.group(0)[0];
+      _skip(match);
       s = s.substring(1, s.length - 1).replaceAll('\n', '\n');
       return ['string', new Str(s, quote)];
     }
   }
 
-  dimension() {
-    Match capture = match('dimension');
-    if (capture != null) {
-      skip(capture);
-      return ['dimension', new Dimension(capture.group(1), capture.group(2))];
+  _dimension() {
+    Match match = _match('dimension');
+    if (match != null) {
+      _skip(match);
+      return ['dimension', new Dimension(match.group(1), match.group(2))];
     }
   }
 
-  ident() {
-    Match capture = match('ident');
-    if (capture != null) {
-      skip(capture);
-      return ['ident', capture.group(1)];
+  _ident() {
+    Match match = _match('ident');
+    if (match != null) {
+      _skip(match);
+      return ['ident', match.group(1)];
     }
   }
 
-  operator() {
-    Match capture = match('operator');
-    if (capture != null) {
-      var op = capture.group(1);
-      skip(capture);
-      isURL = false;
+  _operator() {
+    Match match = _match('operator');
+    if (match != null) {
+      var op = match.group(1);
+      _skip(match);
+      _isURL = false;
       return [op];
     }
   }
 
-  space() {
-    Match capture = match('space');
-    if (capture != null) {
-      skip(capture);
+  _space() {
+    Match match = _match('space');
+    if (match != null) {
+      _skip(match);
       return ['space'];
     }
   }
 
-  selector() {
-    Match capture = match('selector');
-    if (capture != null) {
-      var selector = capture.group(0);
-      skip(capture);
+  _selector() {
+    Match match = _match('selector');
+    if (match != null) {
+      var selector = match.group(0);
+      _skip(match);
       return ['selector', selector];
     }
   }

@@ -4,38 +4,35 @@ import 'lexer.dart';
 import 'nodes.dart';
 
 class Parser {
-  List tokens, stash = [], state = ['stylesheet'];
-  Node root;
-  num parens = 0;
-  bool operand = false;
+  List _tokens, _stash = [], _state = ['stylesheet'];
+  Node _root;
+  num _parens = 0;
+  bool _operand = false;
 
   Parser(str) {
-    this.tokens = new Lexer(str).tokenize();
-    this.root = new Stylesheet();
-    this.stash = [];
-    this.parens = 0;
-    this.state = ['root'];
+    this._tokens = new Lexer(str).tokenize();
+    this._root = new Stylesheet();
   }
 
-  get currentState => state.last;
+  get _currentState => _state.last;
 
   parse() {
-    var block = root;
+    var block = _root;
     while (peek[0] != 'eos') {
-      if (accept('newline') != null) {
+      if (_accept('newline') != null) {
         continue;
       }
-      var smt = statement();
-      accept(';');
+      var smt = _statement();
+      _accept(';');
       if (smt == null) {
-        error('unexpected token {peek}, not allowed at the root level');
+        _error('unexpected token {peek}, not allowed at the root level');
       }
       block.push(smt);
     }
     return block;
   }
 
-  error(msg) {
+  _error(msg) {
     var tag = peek[0],
         val = peek[1] == null
           ? ''
@@ -46,37 +43,36 @@ class Parser {
     throw new Exception(msg.replaceAll('{peek}', '"$tag$val"'));
   }
 
-  get peek => tokens[0];
+  get peek => _tokens[0];
 
   get next {
-    var tok = stash.length > 0
-      ? stash.removeLast()
-      : tokens.removeAt(0);
+    var tok = _stash.length > 0
+      ? _stash.removeLast()
+      : _tokens.removeAt(0);
 
     return tok;
   }
 
-  accept(tag) {
+  _accept(tag) {
     if (peek[0] == tag) {
       return next;
     }
   }
 
-  expect(tag) {
+  _expect(tag) {
     if (peek[0] != tag) {
-      error('expected "$tag", got {peek}');
+      _error('expected "$tag", got {peek}');
     }
     return next;
   }
 
-  lookahead(n) => tokens[--n];
+  lookahead(n) => _tokens[--n];
 
-  lineContains(tag) {
-    var i = 1,
-        la;
+  _lineContains(tag) {
+    var i = 1;
 
-    while (i++ < tokens.length) {
-      la = lookahead(i++);
+    while (i++ < _tokens.length) {
+      var la = lookahead(i++);
       if (['indent', 'outdent', 'newline'].indexOf(la[0]) != -1) {
         return false;
       }
@@ -87,121 +83,120 @@ class Parser {
     return false;
   }
 
-  skipWhitespace() {
+  _skipWhitespace() {
     while (['space', 'indent', 'outdent', 'newline'].indexOf(peek[0]) != -1) {
       next;
     }
   }
 
-  skipNewlines() {
+  _skipNewlines() {
     while (peek[0] == 'newline') {
       next;
     }
   }
 
-  skipSpaces() {
+  _skipSpaces() {
     while (peek[0] == 'space') {
       next;
     }
   }
 
-  looksLikeDefinition(i) {
+  _looksLikeDefinition(i) {
     return lookahead(i)[0] == 'indent'
           || lookahead(i)[0] == '{';
   }
 
-  statement() {
+  _statement() {
     var tag = peek[0];
     switch(tag) {
       case 'selector':
-        return selector();
+        return _selector();
       case 'dimension':
-        return dimension();
+        return _dimension();
       case 'atkeyword':
-        return atkeyword();
+        return _atkeyword();
       case 'ident':
-        return ident();
+        return _ident();
       case 'fn':
-        return fn();
+        return _fn();
       case 'comment':
-        return comment();
+        return _comment();
       default:
-        error('unexpected {peek}');
+        _error('unexpected {peek}');
     }
   }
 
-  selector() {
+  _selector() {
     var ruleset = new Ruleset();
 
     do {
-      this.accept('newline');
+      this._accept('newline');
       ruleset.push(new Selector(next[1]));
-    } while (accept(',') != null);
+    } while (_accept(',') != null);
 
-    state.add('selector');
-    ruleset.block = block();
-    state.removeLast();
+    _state.add('selector');
+    ruleset.block = _block();
+    _state.removeLast();
 
     return ruleset;
   }
 
-  block() {
-    var smt,
-        b = new Block();
+  _block() {
+    var block = new Block();
 
-    skipNewlines();
-    accept('{');
-    skipWhitespace();
+    _skipNewlines();
+    _accept('{');
+    _skipWhitespace();
 
     while (peek[0] != '}') {
-      if (accept('newline') != null) {
+      if (_accept('newline') != null) {
         continue;
       }
-      smt = statement();
-      accept(';');
-      skipWhitespace();
-      if (smt == null) {
-        error('unexpected token {peek} in block');
+      var statement = _statement();
+      _accept(';');
+      _skipWhitespace();
+      if (statement == null) {
+        _error('unexpected token {peek} in block');
       }
-      b.push(smt);
+      block.push(statement);
     }
 
-    expect('}');
-    accept('outdent');
-    skipSpaces();
-    return b;
+    _expect('}');
+    _accept('outdent');
+    _skipSpaces();
+    return block;
   }
 
-  dimension() {
+  _dimension() {
     var ruleset = new Ruleset();
 
     do {
-      this.accept('newline');
+      this._accept('newline');
       ruleset.push(new Selector(next[1]));
-    } while (accept(',') != null);
+    } while (_accept(',') != null);
 
-    state.add('selector');
-    ruleset.block = block();
-    state.removeLast();
+    _state.add('selector');
+    ruleset.block = _block();
+    _state.removeLast();
 
     return ruleset;
   }
 
-  atkeyword() {
+  _atkeyword() {
     var rule = '@#{next[1]}';
     while (peek[0] != '{') {
-      accept('newline');
-      accept('indent');
+      _accept('newline');
+      _accept('indent');
       rule.concat(next[1]);
     }
     var atrule = new Atrule(rule);
-    state.add('atrule');
-    atrule.block = block();
-    state.removeLast();
+    _state.add('atrule');
+    atrule.block = _block();
+    _state.removeLast();
     return atrule;
   }
 
-  ident() {
+  _ident() {
     var i = 2,
         la = lookahead(i)[0];
 
@@ -211,138 +206,135 @@ class Parser {
 
     switch (la) {
       case '=':
-        return assignment();
+        return _assignment();
       case '-':
       case '+':
       case '/':
       case '*':
       case '%':
-        switch (currentState) {
+        switch (_currentState) {
           case 'selector':
           case 'atrule':
-            return declaration();
+            return _declaration();
         }
         break;
       default:
-        switch (currentState) {
+        switch (_currentState) {
           case 'root':
-            return selector();
+            return _selector();
           case 'selector':
           case 'function':
           case 'atrule':
-            return declaration();
+            return _declaration();
           default:
-            var tok = expect('ident');
-            accept('space');
+            var tok = _expect('ident');
+            _accept('space');
             return new Ident(tok[1]);
         }
     }
   }
 
-  declaration() {
-    var ident = accept('ident')[1],
+  _declaration() {
+    var ident = _accept('ident')[1],
         decl = new Declaration(ident),
         ret = decl;
 
-    accept('space');
-    if (accept(':') != null) accept('space');
+    _accept('space');
+    if (_accept(':') != null) _accept('space');
 
-    state.add('declaration');
-    decl.value = list();
+    _state.add('declaration');
+    decl.value = _list();
     if (decl.value.isEmpty) {
       ret = ident;
     }
-    state.removeLast();
-    accept(';');
+    _state.removeLast();
+    _accept(';');
 
     return ret;
   }
 
-  list() {
-    var node = expression();
-    while (accept(',') != null || accept('indent') != null) {
+  _list() {
+    var node = _expression();
+    while (_accept(',') != null || _accept('indent') != null) {
       if (node.isList) {
-        node.push(expression());
+        node.push(_expression());
       } else {
         var list = new Expression(true);
         list.push(node);
-        list.push(expression());
+        list.push(_expression());
         node = list;
       }
     }
     return node;
   }
 
-  assignment() {
-    var name = expect('ident')[1];
+  _assignment() {
+    var name = _expect('ident')[1];
 
-    accept('space');
-    expect('=');
+    _accept('space');
+    _expect('=');
 
-    state.add('assignment');
-    var expr = list(),
+    _state.add('assignment');
+    var expr = _list(),
         node = new Ident(name, expr);
-    state.removeLast();
+    _state.removeLast();
 
     return node;
   }
 
-  expression() {
+  _expression() {
     var node,
         expr = new Expression();
 
-    state.add('expression');
-    while ((node = additive()) != null) {
+    _state.add('expression');
+    while ((node = _additive()) != null) {
       expr.push(node);
     }
-    state.removeLast();
+    _state.removeLast();
     return expr;
   }
 
-  additive() {
+  _additive() {
     var op,
-        node = multiplicative();
+        node = _multiplicative();
 
-    while ((op = accept('+')) != null || (op = accept('-')) != null) {
-      operand = true;
-      node = new Binop(op[0], node, multiplicative());
-      operand = false;
+    while ((op = _accept('+')) != null || (op = _accept('-')) != null) {
+      _operand = true;
+      node = new Binop(op[0], node, _multiplicative());
+      _operand = false;
     }
     return node;
   }
 
-  multiplicative() {
+  _multiplicative() {
     var op,
-        node = primary();
-    while ((op = accept('*')) != null
-      || (op = accept('/')) != null
-      || (op = accept('%')) != null) {
-      operand = true;
-      if (op == '/' && currentState == 'declaration' && parens == 0) {
-        stash.add(['literal', '/']);
-        operand = false;
+        node = _primary();
+    while ((op = _accept('*')) != null
+      || (op = _accept('/')) != null
+      || (op = _accept('%')) != null) {
+      _operand = true;
+      if (op == '/' && _currentState == 'declaration' && _parens == 0) {
+        _stash.add(['literal', '/']);
+        _operand = false;
         return node;
       } else {
         if (node != null) {
-          error('illegal unary "$op", missing left-hand operand');
+          _error('illegal unary "$op", missing left-hand operand');
         }
-        node = new Binop(op[0], node, primary());
-        operand = false;
+        node = new Binop(op[0], node, _primary());
+        _operand = false;
       }
     }
     return node;
   }
 
-  primary() {
-    var op,
-        node;
-
-    if (accept('(') != null) {
-      ++parens;
-      var expr = expression();
-      expect(')');
-      --parens;
-      if(accept('%') != null) {
+  _primary() {
+    if (_accept('(') != null) {
+      ++_parens;
+      var expr = _expression();
+      _expect(')');
+      --_parens;
+      if(_accept('%') != null) {
         expr.push('%');
       }
       return expr;
@@ -355,13 +347,13 @@ class Parser {
       case 'literal':
         return next[1];
       case 'ident':
-        return ident();
+        return _ident();
       case 'fn':
-        return fncall();
+        return _fncall();
     }
   }
 
-  fn() {
+  _fn() {
     var p = 1,
         i = 2,
         tok,
@@ -379,89 +371,88 @@ class Parser {
           }
           break;
         case 'eos':
-          error('failed to find closing paren ")"');
+          _error('failed to find closing paren ")"');
           break;
       }
       if (out) break;
     }
-    switch (currentState) {
+    switch (_currentState) {
       case 'expression':
-        return fncall();
+        return _fncall();
       default:
-        return looksLikeDefinition(i)
-          ? definition()
-          : expression();
+        return _looksLikeDefinition(i)
+          ? _definition()
+          : _expression();
     }
   }
 
-  definition() {
-    var name = expect('fn')[1];
+  _definition() {
+    var name = _expect('fn')[1];
 
-    state.add('function params');
-    skipWhitespace();
-    var par = params();
-    skipWhitespace();
-    expect(')');
-    state.removeLast();
+    _state.add('function params');
+    _skipWhitespace();
+    var params = _params();
+    _skipWhitespace();
+    _expect(')');
+    _state.removeLast();
 
-    state.add('function');
-    var f = new Definition(name, par);
-    f.block = block();
-    state.removeLast();
+    _state.add('function');
+    var f = new Definition(name, params);
+    f.block = _block();
+    _state.removeLast();
     return f;
   }
 
-  fncall() {
-    var name = expect('fn')[1];
-    state.add('function arguments');
-    ++parens;
-    var a = args();
-    expect(')');
-    --parens;
-    state.removeLast();
-    return new Call(name, a);
+  _fncall() {
+    var name = _expect('fn')[1];
+    _state.add('function arguments');
+    ++_parens;
+    var args = _args();
+    _expect(')');
+    --_parens;
+    _state.removeLast();
+    return new Call(name, args);
   }
 
-  params() {
+  _params() {
     var tok,
         node,
-        p = new Params();
+        params = new Params();
 
-    while ((tok = accept('ident')) != null) {
-      accept('space');
-      p.push(node = tok[1]);
-      if (accept('=') != null) {
-        node.value = expression();
+    while ((tok = _accept('ident')) != null) {
+      _accept('space');
+      params.push(node = tok[1]);
+      if (_accept('=') != null) {
+        node.value = _expression();
       }
-      skipWhitespace();
-      accept(',');
-      skipWhitespace();
+      _skipWhitespace();
+      _accept(',');
+      _skipWhitespace();
     }
-    return p;
+    return params;
   }
 
-  args() {
-    var a = new Arguments(),
-        keyword;
+  _args() {
+    var args = new Arguments();
 
     do {
       if (peek[0] == 'ident' && lookahead(2)[0] == '=') {
-        keyword = next[1];
-        expect('=');
-        a.map[keyword] = expression();
+        var keyword = next[1];
+        _expect('=');
+        args.map[keyword] = _expression();
       } else {
-        a.push(expression());
+        args.push(_expression());
       }
-    } while (accept(',') != null);
+    } while (_accept(',') != null);
 
-    return a;
+    return args;
   }
 
-  comment() {
+  _comment() {
     var node = next[1];
-    skipSpaces();
+    _skipSpaces();
     return node;
   }
 
-  literal() => expect('literal')[1];
+  _literal() => _expect('literal')[1];
 }
