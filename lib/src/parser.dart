@@ -4,7 +4,8 @@ import 'lexer.dart';
 import 'nodes.dart';
 
 class Parser {
-  List _tokens, _stash = [], _state = ['stylesheet'];
+  List<String> _state = ['stylesheet'], _tokens;
+  List<List<String>> _stash = []; 
   Node _root;
   num _parens = 0;
   bool _operand = false;
@@ -14,10 +15,10 @@ class Parser {
     this._root = new Stylesheet();
   }
 
-  get _currentState => _state.last;
+  String get _currentState => _state.last;
 
   parse() {
-    var block = _root;
+    Stylesheet block = _root;
     while (peek[0] != 'eos') {
       if (_accept('newline') != null) {
         continue;
@@ -33,7 +34,7 @@ class Parser {
   }
 
   _error(msg) {
-    var tag = peek[0],
+    String tag = peek[0],
         val = peek[1] == null
           ? ''
           : ' $peek';
@@ -69,7 +70,7 @@ class Parser {
   lookahead(n) => _tokens[--n];
 
   _lineContains(tag) {
-    var i = 1;
+    num i = 1;
 
     while (i++ < _tokens.length) {
       var la = lookahead(i++);
@@ -107,7 +108,7 @@ class Parser {
   }
 
   _statement() {
-    var tag = peek[0];
+    String tag = peek[0];
     switch(tag) {
       case 'selector':
         return _selector();
@@ -127,10 +128,10 @@ class Parser {
   }
 
   _selector() {
-    var ruleset = new Ruleset();
+    Ruleset ruleset = new Ruleset();
 
     do {
-      this._accept('newline');
+      _accept('newline');
       ruleset.push(new Selector(next[1]));
     } while (_accept(',') != null);
 
@@ -142,7 +143,7 @@ class Parser {
   }
 
   _block() {
-    var block = new Block();
+    Block block = new Block();
 
     _skipNewlines();
     _accept('{');
@@ -168,10 +169,10 @@ class Parser {
   }
 
   _dimension() {
-    var ruleset = new Ruleset();
+    Ruleset ruleset = new Ruleset();
 
     do {
-      this._accept('newline');
+      _accept('newline');
       ruleset.push(new Selector(next[1]));
     } while (_accept(',') != null);
 
@@ -183,13 +184,13 @@ class Parser {
   }
 
   _atkeyword() {
-    var rule = '@#{next[1]}';
+    String rule = '@#{next[1]}';
     while (peek[0] != '{') {
       _accept('newline');
       _accept('indent');
       rule.concat(next[1]);
     }
-    var atrule = new Atrule(rule);
+    Atrule atrule = new Atrule(rule);
     _state.add('atrule');
     atrule.block = _block();
     _state.removeLast();
@@ -197,8 +198,8 @@ class Parser {
   }
 
   _ident() {
-    var i = 2,
-        la = lookahead(i)[0];
+    num i = 2;
+    String la = lookahead(i)[0];
 
     while (la == 'space') {
       la = lookahead(++i)[0];
@@ -235,9 +236,9 @@ class Parser {
   }
 
   _declaration() {
-    var ident = _accept('ident')[1],
-        decl = new Declaration(ident),
-        ret = decl;
+    var ident = _accept('ident')[1];
+    Declaration decl = new Declaration(ident);
+    var ret = decl;
 
     _accept('space');
     if (_accept(':') != null) _accept('space');
@@ -254,7 +255,7 @@ class Parser {
   }
 
   _list() {
-    var node = _expression();
+    Expression node = _expression();
     while (_accept(',') != null || _accept('indent') != null) {
       if (node.isList) {
         node.push(_expression());
@@ -269,22 +270,22 @@ class Parser {
   }
 
   _assignment() {
-    var name = _expect('ident')[1];
+    String name = _expect('ident')[1];
 
     _accept('space');
     _expect('=');
 
     _state.add('assignment');
-    var expr = _list(),
-        node = new Ident(name, expr);
+    Expression expr = _list();
+    Ident node = new Ident(name, expr);
     _state.removeLast();
 
     return node;
   }
 
   _expression() {
-    var node,
-        expr = new Expression();
+    Node node;
+    Expression expr = new Expression();
 
     _state.add('expression');
     while ((node = _additive()) != null) {
@@ -295,8 +296,8 @@ class Parser {
   }
 
   _additive() {
-    var op,
-        node = _multiplicative();
+    List op;
+    Node node = _multiplicative();
 
     while ((op = _accept('+')) != null || (op = _accept('-')) != null) {
       _operand = true;
@@ -307,8 +308,8 @@ class Parser {
   }
 
   _multiplicative() {
-    var op,
-        node = _primary();
+    List op;
+    Node node = _primary();
     while ((op = _accept('*')) != null
       || (op = _accept('/')) != null
       || (op = _accept('%')) != null) {
@@ -354,10 +355,10 @@ class Parser {
   }
 
   _fn() {
-    var p = 1,
-        i = 2,
-        tok,
-        out = false;
+    num p = 1,
+        i = 2;
+    List tok;
+    bool out = false;
 
     while ((tok = this.lookahead(i++)) != null) {
       switch (tok[0]) {
@@ -404,10 +405,10 @@ class Parser {
   }
 
   _fncall() {
-    var name = _expect('fn')[1];
+    String name = _expect('fn')[1];
     _state.add('function arguments');
     ++_parens;
-    var args = _args();
+    Arguments args = _args();
     _expect(')');
     --_parens;
     _state.removeLast();
@@ -415,9 +416,9 @@ class Parser {
   }
 
   _params() {
-    var tok,
-        node,
-        params = new Params();
+    List tok;
+    Ident node;
+    Params params = new Params();
 
     while ((tok = _accept('ident')) != null) {
       _accept('space');
@@ -437,7 +438,7 @@ class Parser {
 
     do {
       if (peek[0] == 'ident' && lookahead(2)[0] == '=') {
-        var keyword = next[1];
+        String keyword = next[1];
         _expect('=');
         args.map[keyword] = _expression();
       } else {
@@ -449,7 +450,7 @@ class Parser {
   }
 
   _comment() {
-    var node = next[1];
+    String node = next[1];
     _skipSpaces();
     return node;
   }

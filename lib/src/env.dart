@@ -17,9 +17,9 @@ class Env {
   Env([this.compress = 0, this._spaces = 2, this.path]):
     stack = [new Scope()], buff = new StringBuffer();
 
-  lookup(name) {
-    var i = stack.length,
-        needle;
+  Node lookup(name) {
+    num i = stack.length;
+    Node needle;
 
     while (i-- > 0) {
       if ((needle = stack[i].lookup(name)) != null) {
@@ -29,9 +29,9 @@ class Env {
     return null;
   }
 
-  get scope => stack.last;
+  Scope get scope => stack.last;
 
-  get indent {
+  String get indent {
     if (compress > 4) {
       return '';
     }
@@ -39,8 +39,8 @@ class Env {
   }
 }
 
-times(s, n) {
-  var sb = new StringBuffer();
+String times(s, n) {
+  StringBuffer sb = new StringBuffer();
   for(int i = 0; i < n; i++) {
     sb.add(s);
   }

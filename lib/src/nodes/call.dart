@@ -1,6 +1,6 @@
 part of nodes;
 
-class Call {
+class Call implements Node {
   String name;
   Arguments args;
 
@@ -23,10 +23,7 @@ class Call {
     }
   }
 
-  css([env]) {
-    if (env == null) {
-      env = {};
-    }
+  css(env) {
     var a = args.nodes.map((arg) => arg.css(env));
     a = Strings.join(a, env.compress > 4 ? ',' : ', ');
     return '$name($a)';

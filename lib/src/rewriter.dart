@@ -9,15 +9,15 @@ class Rewriter {
 
   Rewriter(this._tokens);
 
-  rewrite() {
+  List rewrite() {
     return _addImplicitBraces()
            ._findSelectors()
            ._tokens;
   }
 
-  _scan(block) {
-    var i = 0,
-        token;
+  Rewriter _scan(block) {
+    num i = 0;
+    List token;
     while (i < _tokens.length) {
       token = _tokens[i];
       i += block(token, i, _tokens);
@@ -25,25 +25,25 @@ class Rewriter {
     return this;
   }
 
-  _addImplicitBraces() {
-    var stack = [],
-        sameLine = true,
-        tok,
-        condition = (token, i) {
+  Rewriter _addImplicitBraces() {
+    List stack = [], tok;
+    bool sameLine = true;
+        
+    var condition = bool (token, i) {
           var tag = token[0];
           if (LINEBREAKS.indexOf(tag) != -1) {
             sameLine = false;
           }
           return (tag == 'newline' || tag == 'outdent') && sameLine;
         },
-        action = (token, i) {
+        action = List (token, i) {
           var tok = ['}', false, token[2]];
           return _tokens.insertRange(i, 1, tok);
         };
 
     return _scan((token, i, tokens) {
-      var tag = token[0],
-          last, tok;
+      String tag = token[0];
+      List tok;
 
       if (EXPRESSION_START.indexOf(tag) != -1) {
         stack.add([(tag == 'indent' && tokens[i - 1][0] == '{' ? '{' : tag), i]);
@@ -64,12 +64,12 @@ class Rewriter {
       tok = ['{', null, token[2]];
       tokens.insertRange(i - 1, 1, tok);
 
-      detectEnd(i + 2, condition, action);
+      _detectEnd(i + 2, condition, action);
       return 1;
     });
   }
 
-  _findSelectors() {
+  Rewriter _findSelectors() {
     return _scan((token, i, tokens) {
       if (token[0] == 'ident' && (tokens[i + 1][0] == '{')) {
         token[0] = 'selector';
@@ -83,9 +83,9 @@ class Rewriter {
     });
   }
 
-  detectEnd(i, condition, action) {
-    var levels = 0,
-        token;
+  num _detectEnd(i, condition, action) {
+    num levels = 0;
+    List token;
     while (i < _tokens.length) {
       token = _tokens[i];
       if (levels == 0 && condition(token, i)) {

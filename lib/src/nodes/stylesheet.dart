@@ -14,9 +14,6 @@ class Stylesheet implements Node {
   unshift(node) => nodes.insertRange(0, 1, node);
 
   eval(env, [defOnly = false]) {
-    if (env == null) {
-        env = {};
-    }
     if (defOnly) {
       nodes.forEach((node) {
         if (node is Definition || node is Declaration) {
@@ -31,10 +28,6 @@ class Stylesheet implements Node {
   }
 
   css(env) {
-    if (env == null) {
-      return 'BOSS';
-    }
-
     nodes.forEach((node) {
       var ret = node.css(env);
       if (ret != null) {

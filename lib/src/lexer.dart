@@ -50,7 +50,7 @@ class Lexer {
     return re[type].firstMatch(_str);
   }
 
-  tokenize() {
+  List tokenize() {
     var tok,
         tmp = _str,
         tokens = [];
@@ -69,9 +69,9 @@ class Lexer {
     return rw.rewrite();
   }
 
-  get next {
-    var t;
-    var tok = (t = _stashed()) is List ? t : _advance();
+  List get next {
+    List t = _stashed();
+    List tok = t != null ? t : _advance();
 
     switch (tok[0]) {
       case 'newline':
@@ -93,40 +93,39 @@ class Lexer {
     return tok;
   }
   
-  _skip(len) {
+  void _skip(len) {
     _str = _str.substring(len is Match
       ? len.group(0).length
       : len);
   }
 
-  _stashed() => _stash.length > 0 ? _stash.removeAt(0) : false;
+  List _stashed() => _stash.length > 0 ? _stash.removeAt(0) : null;
 
-  _advance() {
+  List _advance() {
     var t;
     if ((t = _eos()) != null
-      ||(t = _sep()) != null
-      ||(t = _url()) != null
-      ||(t = _atkeyword()) != null
-      ||(t = _comment()) != null
-      ||(t = _newline()) != null
-      ||(t = _important()) != null
-      ||(t = _fn()) != null
-      ||(t = _brace()) != null
-      ||(t = _paren()) != null
-      ||(t = _color()) != null
-      ||(t = _string()) != null
-      ||(t = _dimension()) != null
-      ||(t = _ident()) != null
-      ||(t = _operator()) != null
-      ||(t = _space()) != null
-      ||(t = _selector()) != null
-        ) { return t;
-    }
+       || (t = _sep()) != null
+       || (t = _url()) != null
+       || (t = _atkeyword()) != null
+       || (t = _comment()) != null
+       || (t = _newline()) != null
+       || (t = _important()) != null
+       || (t = _fn()) != null
+       || (t = _brace()) != null
+       || (t = _paren()) != null
+       || (t = _color()) != null
+       || (t = _string()) != null
+       || (t = _dimension()) != null
+       || (t = _ident()) != null
+       || (t = _operator()) != null
+       || (t = _space()) != null
+       || (t = _selector()) != null
+       ){ return t; }
     throw new Exception('parse error');
   }
 
-  _eos() {
-    if (_str.length > 0) return;
+  List _eos() {
+    if (_str.length > 0) return null;
     if (_indentStack.length > 0) {
       _indentStack.removeAt(0);
       return ['outdent'];
@@ -135,7 +134,7 @@ class Lexer {
     }
   }
 
-  _sep() {
+  List _sep() {
     Match match = _match('sep');
     if (match != null) {
       _skip(match);
@@ -143,8 +142,8 @@ class Lexer {
     }
   }
 
-  _url() {
-    if (!_isURL) return;
+  List _url() {
+    if (!_isURL) return null;
     Match match = _match('urlchars');
     if (match != null) {
       _skip(match);
@@ -152,7 +151,7 @@ class Lexer {
     }
   }
 
-  _atkeyword() {
+  List _atkeyword() {
     Match match = _match('atkeyword');
     if (match != null) {
       _skip(match);
@@ -164,7 +163,7 @@ class Lexer {
     }
   }
 
-  _comment() {
+  List _comment() {
     Match match = _match('comment');
     if (match != null) {
       var lines = match.group(0).split('\n').length;
@@ -174,8 +173,9 @@ class Lexer {
     }
   }
 
-  _newline() {
-    var re, match;
+  List _newline() {
+    RegExp re;
+    Match match;
 
     if (_indentRe != null) {
       match = _indentRe.firstMatch(_str);
@@ -226,7 +226,7 @@ class Lexer {
     }
   }
 
-  _important() {
+  List _important() {
     Match match = _match('important');
     if (match != null) {
       _skip(match);
@@ -234,7 +234,7 @@ class Lexer {
     }
   }
 
-  _fn() {
+  List _fn() {
     Match match = _match('function');
     if (match != null) {
       _skip(match);
@@ -244,7 +244,7 @@ class Lexer {
     }
   }
 
-  _brace() {
+  List _brace() {
     Match match = _match('brace');
     if (match != null) {
       _skip(1);
@@ -252,7 +252,7 @@ class Lexer {
     }
   }
 
-  _paren() {
+  List _paren() {
     Match match = _match('paren');
     if (match != null) {
       var paren = match.group(1);
@@ -264,7 +264,7 @@ class Lexer {
     }
   }
 
-  _color() {
+  List _color() {
     Match match = _match('color');
     if (match != null) {
       _skip(match);
@@ -272,7 +272,7 @@ class Lexer {
     }
   }
 
-  _string() {
+  List _string() {
     Match match = _match('string');
     if (match != null) {
       var s = match.group(1),
@@ -283,7 +283,7 @@ class Lexer {
     }
   }
 
-  _dimension() {
+  List _dimension() {
     Match match = _match('dimension');
     if (match != null) {
       _skip(match);
@@ -291,7 +291,7 @@ class Lexer {
     }
   }
 
-  _ident() {
+  List _ident() {
     Match match = _match('ident');
     if (match != null) {
       _skip(match);
@@ -299,7 +299,7 @@ class Lexer {
     }
   }
 
-  _operator() {
+  List _operator() {
     Match match = _match('operator');
     if (match != null) {
       var op = match.group(1);
@@ -309,7 +309,7 @@ class Lexer {
     }
   }
 
-  _space() {
+  List _space() {
     Match match = _match('space');
     if (match != null) {
       _skip(match);
@@ -317,7 +317,7 @@ class Lexer {
     }
   }
 
-  _selector() {
+  List _selector() {
     Match match = _match('selector');
     if (match != null) {
       var selector = match.group(0);
