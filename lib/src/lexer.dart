@@ -26,29 +26,27 @@ class Lexer {
 
   RegExp _indentRe;
 
+  final Map<String,RegExp> _rules = {
+    'sep': new RegExp(r'^;[ \t]*'),
+    'space': new RegExp(r'^([ \t]+)'),
+    'urlchars': new RegExp(r'^[^\(\)]+'),
+    'operator': new RegExp(r'^([.]{2,3}|[~^$*|]=|[-+*\/%]|[,:=])[ \t]*'),
+    'atkeyword': new RegExp('^@(import|(?:-(\w+)-)?keyframes|charset|font-face|page|media)[ \t]*'),
+    'important': new RegExp('^!important[ \t]*'),
+    'brace': new RegExp(r'^([{}])[ \t]*'),
+    'comment': new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?|^\/\/.*'),
+    'paren': new RegExp(r'^([()])[ \t]*'),
+    'function': new RegExp(r'^(-?[_a-zA-Z$-]*)\([ \t]*'),
+    'ident': new RegExp(r'^(-?[_a-zA-Z$-]+)'),
+    'string': new RegExp('^("[^"]*"|\'[^\']*\')[ \t]*'),
+    'color': new RegExp(r'^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})[ \t]*'),
+    'dimension': new RegExp('^(-?\\d*\\.?\\d+)(${Strings.join(units, '|')})?[ \\t]*'),
+    'selector': new RegExp(r'^[^{\n,]+')
+  };
+
   Lexer(this._str);
 
-  Match _match(type) {
-    var re = {
-      'sep': new RegExp(r'^;[ \t]*'),
-      'space': new RegExp(r'^([ \t]+)'),
-      'urlchars': new RegExp(r'^[^\(\)]+'),
-      'operator': new RegExp(r'^([.]{2,3}|[~^$*|]=|[-+*\/%]|[,:=])[ \t]*'),
-      'atkeyword': new RegExp('^@(import|(?:-(\w+)-)?keyframes|charset|font-face|page|media)[ \t]*'),
-      'important': new RegExp('^!important[ \t]*'),
-      'brace': new RegExp(r'^([{}])[ \t]*'),
-      'comment': new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?|^\/\/.*'),
-      'paren': new RegExp(r'^([()])[ \t]*'),
-      'function': new RegExp(r'^(-?[_a-zA-Z$-]*)\([ \t]*'),
-      'ident': new RegExp(r'^(-?[_a-zA-Z$-]+)'),
-      'string': new RegExp('^("[^"]*"|\'[^\']*\')[ \t]*'),
-      'color': new RegExp(r'^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})[ \t]*'),
-      'dimension': new RegExp('^(-?\\d*\\.?\\d+)(${Strings.join(units, '|')})?[ \\t]*'),
-      'selector': new RegExp(r'^[^{\n,]+')
-    };
-
-    return re[type].firstMatch(_str);
-  }
+  Match _match(type) =>  _rules[type].firstMatch(_str);
 
   List tokenize() {
     var tmp = _str,
@@ -92,7 +90,7 @@ class Lexer {
     tok.add(lineno);
     return tok;
   }
-  
+
   void _skip(len) {
     _str = _str.substring(len is Match
       ? len.group(0).length

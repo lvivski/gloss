@@ -1,7 +1,7 @@
 library gloss;
 
-import 'src/parser.dart';
 import 'src/env.dart';
+import 'src/parser.dart';
 
 class Gloss {
   static parse(str) {

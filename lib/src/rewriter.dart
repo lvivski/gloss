@@ -28,15 +28,15 @@ class Rewriter {
   Rewriter _addImplicitBraces() {
     List stack = [], tok;
     bool sameLine = true;
-        
-    var condition = bool (token, i) {
+
+    var condition = (token, i) {
           var tag = token[0];
           if (LINEBREAKS.indexOf(tag) != -1) {
             sameLine = false;
           }
           return (tag == 'newline' || tag == 'outdent') && sameLine;
         },
-        action = List (token, i) {
+        action = (token, i) {
           var tok = ['}', false, token[2]];
           return _tokens.insertRange(i, 1, tok);
         };

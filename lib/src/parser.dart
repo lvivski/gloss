@@ -5,7 +5,7 @@ import 'nodes.dart';
 
 class Parser {
   List<String> _state = ['stylesheet'];
-  List<List<Object>> _stash = [], _tokens; 
+  List<List<Object>> _stash = [], _tokens;
   Stylesheet _root;
   num _parens = 0;
   bool _operand = false;
@@ -310,7 +310,7 @@ class Parser {
   Node _multiplicative() {
     var node = _primary();
     List op;
-    
+
     while ((op = _accept('*')) != null
       || (op = _accept('/')) != null
       || (op = _accept('%')) != null) {
@@ -359,7 +359,7 @@ class Parser {
     var p = 1,
         i = 2,
         out = false;
-    List tok; 
+    List tok;
 
     while ((tok = this.lookahead(i++)) != null) {
       switch (tok[0]) {
