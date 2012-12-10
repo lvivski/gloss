@@ -30,19 +30,19 @@ class Expression implements Node {
   }
 
   css(env) {
-    var buf = [],
+    var buff = new StringBuffer(),
         n = nodes.map((node) => node.css(env));
 
     for (var i = 0, len = n.length; i < len; i++) {
       var last = i == (len - 1);
-      buf.add(n[i]);
+      buff.add(n[i]);
       if (n[i] == '/' || (len < i + 1 && n[i + 1] == '/')) return;
       if (last) continue;
-      buf.add(isList
+      buff.add(isList
         ? (env.compress > 4 ? ',' : ', ')
         : (env.isURL ? '' : ' '));
     }
 
-    return Strings.concatAll(buf);
+    return buff.toString();
   }
 }

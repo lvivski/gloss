@@ -18,7 +18,8 @@ class Atrule implements Node {
       ++env.indents;
       block.css(env);
       --env.indents;
-      env.buff.add('}${env.compress > 4 ? '' : '\n'}');
+      env.buff.add('}')
+              .add(env.compress > 4 ? '' : '\n');
     } else {
       env.buff.add(env.compress > 4 ? ';' : ';\n');
     }
