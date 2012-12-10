@@ -1,7 +1,13 @@
 library rewriter;
 
+typedef num Block(List<String> token, num i, List<List<String>> tokens);
+
+typedef bool Condition(List<String> token, num i);
+
+typedef void Action(List token, num i);
+
 class Rewriter {
-  List _tokens;
+  List<List<String>> _tokens;
 
   const EXPRESSION_START = const ['{', 'indent'],
     EXPRESSION_END = const ['}', 'outdent'],
@@ -15,35 +21,33 @@ class Rewriter {
            ._tokens;
   }
 
-  Rewriter _scan(block) {
-    num i = 0;
-    List token;
+  Rewriter _scan(Block block) {
+    var i = 0;
     while (i < _tokens.length) {
-      token = _tokens[i];
+      var token = _tokens[i];
       i += block(token, i, _tokens);
     }
     return this;
   }
 
   Rewriter _addImplicitBraces() {
-    List stack = [], tok;
-    bool sameLine = true;
+    var stack = [],
+        sameLine = true;
 
-    var condition = (token, i) {
-          var tag = token[0];
-          if (LINEBREAKS.indexOf(tag) != -1) {
-            sameLine = false;
-          }
-          return (tag == 'newline' || tag == 'outdent') && sameLine;
-        },
-        action = (token, i) {
-          var tok = ['}', false, token[2]];
-          return _tokens.insertRange(i, 1, tok);
-        };
+    Condition condition = (token, i) {
+      var tag = token[0];
+      if (LINEBREAKS.indexOf(tag) != -1) {
+        sameLine = false;
+      }
+      return (tag == 'newline' || tag == 'outdent') && sameLine;
+    };
+    Action action = (token, i) {
+      var tok = ['}', false, token[2]];
+      _tokens.insertRange(i, 1, tok);
+    };
 
     return _scan((token, i, tokens) {
-      String tag = token[0];
-      List tok;
+      var tag = token[0];
 
       if (EXPRESSION_START.indexOf(tag) != -1) {
         stack.add([(tag == 'indent' && tokens[i - 1][0] == '{' ? '{' : tag), i]);
@@ -61,7 +65,7 @@ class Rewriter {
 
       sameLine = true;
       stack.add(['{']);
-      tok = ['{', null, token[2]];
+      var tok = ['{', null, token[2]];
       tokens.insertRange(i - 1, 1, tok);
 
       _detectEnd(i + 2, condition, action);
@@ -76,23 +80,22 @@ class Rewriter {
       }
       if (token[0] == 'ident' && (tokens[i + 1][0] == 'space' && tokens[i + 2][0] == 'selector')) {
         token[0] = 'selector';
-        token[1] += ' ${tokens[i + 2][1]}';
+        token[1] = token[1].concat(' ${tokens[i + 2][1]}');
         tokens.removeRange(i + 1, 2);
       }
       return 1;
     });
   }
 
-  num _detectEnd(i, condition, action) {
-    num levels = 0;
-    List token;
+  void _detectEnd(num i, Condition condition, Action action) {
+    var levels = 0;
     while (i < _tokens.length) {
-      token = _tokens[i];
+      var token = _tokens[i];
       if (levels == 0 && condition(token, i)) {
         return action(token, i);
       }
       if (levels < 0) {
-        return action(token, i - 1);
+        return action(token, i);
       }
       if (EXPRESSION_START.indexOf(token[0]) != -1) {
         ++levels;
@@ -101,7 +104,6 @@ class Rewriter {
       }
       ++i;
     }
-    return i - 1;
   }
 }
 
