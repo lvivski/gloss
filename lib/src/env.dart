@@ -18,7 +18,7 @@ class Env {
     stack = [new Scope()], buff = new StringBuffer();
 
   Node lookup(name) {
-    num i = stack.length;
+    var i = stack.length;
     Node needle;
 
     while (i-- > 0) {
@@ -40,7 +40,7 @@ class Env {
 }
 
 String times(s, n) {
-  StringBuffer sb = new StringBuffer();
+  var sb = new StringBuffer();
   for(int i = 0; i < n; i++) {
     sb.add(s);
   }

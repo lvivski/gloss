@@ -51,9 +51,9 @@ class Lexer {
   }
 
   List tokenize() {
-    var tok,
-        tmp = _str,
+    var tmp = _str,
         tokens = [];
+    List tok;
 
     while ((tok = next)[0] != 'eos') {
       tokens.add(tok);
@@ -70,8 +70,8 @@ class Lexer {
   }
 
   List get next {
-    List t = _stashed();
-    List tok = t != null ? t : _advance();
+    var t = _stashed(),
+        tok = t != null ? t : _advance();
 
     switch (tok[0]) {
       case 'newline':
@@ -102,7 +102,7 @@ class Lexer {
   List _stashed() => _stash.length > 0 ? _stash.removeAt(0) : null;
 
   List _advance() {
-    var t;
+    List t;
     if ((t = _eos()) != null
        || (t = _sep()) != null
        || (t = _url()) != null
@@ -135,7 +135,7 @@ class Lexer {
   }
 
   List _sep() {
-    Match match = _match('sep');
+    var match = _match('sep');
     if (match != null) {
       _skip(match);
       return [';'];
@@ -144,7 +144,7 @@ class Lexer {
 
   List _url() {
     if (!_isURL) return null;
-    Match match = _match('urlchars');
+    var match = _match('urlchars');
     if (match != null) {
       _skip(match);
       return ['literal', new Literal(match.group(0))];
@@ -152,7 +152,7 @@ class Lexer {
   }
 
   List _atkeyword() {
-    Match match = _match('atkeyword');
+    var match = _match('atkeyword');
     if (match != null) {
       _skip(match);
       var type = match.group(1);
@@ -164,7 +164,7 @@ class Lexer {
   }
 
   List _comment() {
-    Match match = _match('comment');
+    var match = _match('comment');
     if (match != null) {
       var lines = match.group(0).split('\n').length;
       lineno += lines;
@@ -194,8 +194,8 @@ class Lexer {
     }
 
     if (match != null) {
-      var tok
-        , indents = match.group(1).length;
+      var indents = match.group(1).length;
+      List tok;
 
       _skip(match);
 
@@ -227,7 +227,7 @@ class Lexer {
   }
 
   List _important() {
-    Match match = _match('important');
+    var match = _match('important');
     if (match != null) {
       _skip(match);
       return ['id', '!important'];
@@ -235,7 +235,7 @@ class Lexer {
   }
 
   List _fn() {
-    Match match = _match('function');
+    var match = _match('function');
     if (match != null) {
       _skip(match);
       var name = match.group(1);
@@ -245,7 +245,7 @@ class Lexer {
   }
 
   List _brace() {
-    Match match = _match('brace');
+    var match = _match('brace');
     if (match != null) {
       _skip(1);
       return [match.group(1)];
@@ -253,7 +253,7 @@ class Lexer {
   }
 
   List _paren() {
-    Match match = _match('paren');
+    var match = _match('paren');
     if (match != null) {
       var paren = match.group(1);
       _skip(match);
@@ -265,7 +265,7 @@ class Lexer {
   }
 
   List _color() {
-    Match match = _match('color');
+    var match = _match('color');
     if (match != null) {
       _skip(match);
       return ['color', new Color(match.group(1))];
@@ -273,7 +273,7 @@ class Lexer {
   }
 
   List _string() {
-    Match match = _match('string');
+    var match = _match('string');
     if (match != null) {
       var s = match.group(1),
         quote = match.group(0)[0];
@@ -284,7 +284,7 @@ class Lexer {
   }
 
   List _dimension() {
-    Match match = _match('dimension');
+    var match = _match('dimension');
     if (match != null) {
       _skip(match);
       return ['dimension', new Dimension(match.group(1), match.group(2))];
@@ -292,7 +292,7 @@ class Lexer {
   }
 
   List _ident() {
-    Match match = _match('ident');
+    var match = _match('ident');
     if (match != null) {
       _skip(match);
       return ['ident', match.group(1)];
@@ -300,7 +300,7 @@ class Lexer {
   }
 
   List _operator() {
-    Match match = _match('operator');
+    var match = _match('operator');
     if (match != null) {
       var op = match.group(1);
       _skip(match);
@@ -310,7 +310,7 @@ class Lexer {
   }
 
   List _space() {
-    Match match = _match('space');
+    var match = _match('space');
     if (match != null) {
       _skip(match);
       return ['space'];
@@ -318,7 +318,7 @@ class Lexer {
   }
 
   List _selector() {
-    Match match = _match('selector');
+    var match = _match('selector');
     if (match != null) {
       var selector = match.group(0);
       _skip(match);
