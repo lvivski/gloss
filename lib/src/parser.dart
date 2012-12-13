@@ -133,6 +133,7 @@ class Parser {
     do {
       _accept('newline');
       ruleset.push(new Selector(next[1]));
+      _accept('space');
     } while (_accept(',') != null);
 
     _state.add('selector');

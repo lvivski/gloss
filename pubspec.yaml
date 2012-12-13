@@ -2,3 +2,6 @@ name: gloss
 version: 0.0.1
 description: Glamorous CSS preprocessor
 author: Yehor Lvivski <lvivski@gmail.com>
+dependencies:
+  unittest:
+    sdk: unittest

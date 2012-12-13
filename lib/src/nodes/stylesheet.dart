@@ -35,7 +35,7 @@ class Stylesheet implements Node {
       }
     });
 
-    return env.buff;
+    return env.buff.toString();
   }
 
 }
