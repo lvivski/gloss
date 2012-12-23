@@ -138,8 +138,6 @@ class Parser {
         return _ident();
       case 'function':
         return _function();
-      case 'url':
-        return _url();
       case 'comment':
         return _comment();
       case 'hash':
@@ -420,6 +418,8 @@ class Parser {
         return new Literal(next[1]);
       case 'ident':
         return _ident();
+      case 'url':
+        return _url();
       case 'function':
         return _fncall();
     }
@@ -458,8 +458,10 @@ class Parser {
     }
   }
 
+
+  // FIXME
   Node _url() {
-    return new Call('url', new Arguments(false, [next[1]]));
+    return new Call('url', new Arguments(false, [new Literal(next[1])]));
   }
 
   Definition _definition() {
