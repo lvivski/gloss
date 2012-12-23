@@ -5,13 +5,35 @@ import 'nodes.dart';
 
 class Parser {
   List<String> _state = ['stylesheet'];
-  List<List<Object>> _stash = [], _tokens;
+  List<List> _stash = [], _tokens;
   Stylesheet _root;
   num _parens = 0;
   bool _operand = false;
 
+  List _selectorTokens = [
+    'ident',
+    'string',
+    'function',
+    'comment',
+    'space',
+    'hash',
+    'klass',
+    'dimension',
+    'matching',
+    '[',
+    ']',
+    '(',
+    ')',
+    '+',
+    '>',
+    '*',
+    ':',
+    '&',
+    '~'
+  ];
+
   Parser(str) {
-    this._tokens = new Lexer(str).tokenize();
+    this._tokens = new Lexer(str).rewrite();
     this._root = new Stylesheet();
   }
 
@@ -34,19 +56,12 @@ class Parser {
   }
 
   void _error(msg) {
-    var tag = peek[0],
-        val = peek[1] == null
-          ? ''
-          : ' $peek';
-    if (val.trim() == tag.trim()) {
-      val = '';
-    }
-    throw new Exception(msg.replaceAll('{peek}', '"$tag$val"'));
+    throw new Exception(msg.replaceAll('{peek}', '"${peek[0]}"'));
   }
 
   List<Object> get peek => _tokens[0];
 
-  List<Object> get next {
+  List get next {
     var tok = _stash.length > 0
       ? _stash.removeLast()
       : _tokens.removeAt(0);
@@ -107,23 +122,38 @@ class Parser {
           || lookahead(i)[0] == '{';
   }
 
+  bool _isSelectorToken(i) {
+    var la = lookahead(i)[0];
+    return _selectorTokens.indexOf(la) != -1;
+  }
+
   Node _statement() {
     var tag = peek[0];
     switch(tag) {
-      case 'selector':
-        return _selector();
       case 'dimension':
         return _dimension();
       case 'atkeyword':
         return _atkeyword();
       case 'ident':
         return _ident();
-      case 'fn':
-        return _fn();
+      case 'function':
+        return _function();
+      case 'url':
+        return _url();
       case 'comment':
         return _comment();
+      case 'hash':
+      case 'klass':
+      case '~':
+      case '>':
+      case '+':
+      case '&':
+      case ':':
+      case '[':
+        return _selector();
       default:
         _error('unexpected {peek}');
+        break;
     }
   }
 
@@ -131,10 +161,39 @@ class Parser {
     var ruleset = new Ruleset();
 
     do {
+      List selector = [];
       _accept('newline');
-      ruleset.push(new Selector(next[1]));
-      _accept('space');
-    } while (_accept(',') != null);
+      while(_isSelectorToken(1)) {
+        var tok = next;
+        switch(tok[0]) {
+          case 'hash':
+          case 'klass':
+          case 'ident':
+          case 'matching':
+            selector.add(tok[1]);
+            break;
+          case 'function':
+            selector.add("${tok[1]}(");
+            break;
+          case 'dimension':
+            selector.add("${tok[1][0]}${tok[1][1]}");
+            break;
+          case 'string':
+            selector.add(tok[1][0]);
+            break;
+          case 'space':
+            selector.add(" ");
+            break;
+          case 'comment':
+            break;
+          default:
+            selector.add(tok[0]);
+            break;
+        }
+        _accept('newline');
+      }
+      ruleset.push(new Selector(selector));
+    } while (_accept(',') != null || _accept('newline') != null);
 
     _state.add('selector');
     ruleset.block = _block();
@@ -220,9 +279,11 @@ class Parser {
             return _declaration();
         }
         break;
+      case '{':
+        return _selector();
       default:
         switch (_currentState) {
-          case 'root':
+          case 'stylesheet':
             return _selector();
           case 'selector':
           case 'function':
@@ -233,6 +294,7 @@ class Parser {
             _accept('space');
             return new Ident(tok[1]);
         }
+        break;
     }
   }
 
@@ -247,7 +309,7 @@ class Parser {
     _state.add('declaration');
     decl.value = _list();
     if (decl.value.isEmpty) {
-      ret = ident;
+      ret = new Ident(ident);
     }
     _state.removeLast();
     _accept(';');
@@ -258,6 +320,7 @@ class Parser {
   Expression _list() {
     var node = _expression();
     while (_accept(',') != null || _accept('indent') != null) {
+      _skipSpaces();
       if (node.isList) {
         node.push(_expression());
       } else {
@@ -266,6 +329,7 @@ class Parser {
         list.push(_expression());
         node = list;
       }
+
     }
     return node;
   }
@@ -345,18 +409,23 @@ class Parser {
 
     switch (peek[0]) {
       case 'dimension':
-      case 'color':
+        var tok = next;
+        return new Dimension(tok[1][0], tok[1][1]);
+      case 'hash':
+        return new Color(next[1].substring(1));
       case 'string':
+        var tok = next;
+        return new Str(tok[1][0], tok[1][1]);
       case 'literal':
-        return next[1];
+        return new Literal(next[1]);
       case 'ident':
         return _ident();
-      case 'fn':
+      case 'function':
         return _fncall();
     }
   }
 
-  Node _fn() {
+  Node _function() {
     var p = 1,
         i = 2,
         out = false;
@@ -364,7 +433,7 @@ class Parser {
 
     while ((tok = this.lookahead(i++)) != null) {
       switch (tok[0]) {
-        case 'fn':
+        case 'function':
         case '(':
           ++p;
           break;
@@ -389,10 +458,14 @@ class Parser {
     }
   }
 
-  Definition _definition() {
-    var name = _expect('fn')[1];
+  Node _url() {
+    return new Call('url', new Arguments(false, [next[1]]));
+  }
 
-    _state.add('function params');
+  Definition _definition() {
+    var name = _expect('function')[1];
+
+    _state.add('params');
     _skipWhitespace();
     var params = _params();
     _skipWhitespace();
@@ -407,8 +480,8 @@ class Parser {
   }
 
   Call _fncall() {
-    String name = _expect('fn')[1];
-    _state.add('function arguments');
+    String name = _expect('function')[1];
+    _state.add('arguments');
     ++_parens;
     Arguments args = _args();
     _expect(')');

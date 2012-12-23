@@ -1,94 +1,85 @@
 library lexer;
 
-import 'nodes.dart';
 import 'rewriter.dart';
-
-List units = [
-  'em', 'ex', 'ch', 'rem', // relative lengths
-  'vw', 'vh', 'vmin', // relative viewport-percentage lengths
-  'cm', 'mm', 'in', 'pt', 'pc', 'px', // absolute lengths
-  'deg', 'grad', 'rad', 'turn', // angles
-  's', 'ms', // times
-  '%', // percentage type
-  'fr', // grid-layout (http://www.w3.org/TR/css3-grid-layout/)
-];
 
 class Lexer {
   String _str;
-  List _stash = [],
-    _indentStack = [],
-    _prev;
-
-  num lineno = 1,
-      _prevIndents = 0;
-
-  bool _isURL = false;
-
-  RegExp _indentRe;
+  List<num> _indents = [];
+  List _stash = [];
 
   final Map<String,RegExp> _rules = {
-    'sep': new RegExp(r'^;[ \t]*'),
-    'space': new RegExp(r'^([ \t]+)'),
-    'urlchars': new RegExp(r'^[^\(\)]+'),
-    'operator': new RegExp(r'^([.]{2,3}|[~^$*|]=|[-+*\/%]|[,:=])[ \t]*'),
-    'atkeyword': new RegExp('^@(import|(?:-(\w+)-)?keyframes|charset|font-face|page|media)[ \t]*'),
-    'important': new RegExp('^!important[ \t]*'),
-    'brace': new RegExp(r'^([{}])[ \t]*'),
+    'ident': new RegExp('^-?[_a-zA-Z\$-]+'),
+    'atkeyword': new RegExp('^@-?[_a-zA-Z\$-]+'),
+    'string': new RegExp('^"[^"]*"|^\'[^\']*\''),
+    'hash': new RegExp(r'^#[_a-zA-Z0-9\$-]+'),
+    'klass': new RegExp(r'^\.[_a-zA-Z\$-]+'),
+    'dimension': new RegExp(r'^(-?[0-9]*\.?[0-9]+)([a-zA-Z]+|%)?'),
+    'url': new RegExp(r'^url\(([^\)]+)\)'),
+    'space': new RegExp(r'^[ \t]+'),
+    'indentation': new RegExp(r'^\n( *)'),
     'comment': new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?|^\/\/.*'),
-    'paren': new RegExp(r'^([()])[ \t]*'),
-    'function': new RegExp(r'^(-?[_a-zA-Z$-]*)\([ \t]*'),
-    'ident': new RegExp(r'^(-?[_a-zA-Z$-]+)'),
-    'string': new RegExp('^("[^"]*"|\'[^\']*\')[ \t]*'),
-    'color': new RegExp(r'^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})[ \t]*'),
-    'dimension': new RegExp('^(-?\\d*\\.?\\d+)(${Strings.join(units, '|')})?[ \\t]*'),
-    'selector': new RegExp(r'^[^{\n,]+')
+    'matching': new RegExp('^[~^\$*|]='),
+    'function': new RegExp(r'^(-?[_a-zA-Z\$-]*)\('),
+    'operator': new RegExp(r'^[-+*\/%]|[~,>:=&]'),
+    'important': new RegExp('^! *important'),
+    'brace': new RegExp(r'^[{}\[\]]'),
+    'paren': new RegExp('^[()]'),
+    'sep': new RegExp('^;')
   };
 
   Lexer(this._str);
 
-  Match _match(type) =>  _rules[type].firstMatch(_str);
+  Match _match(type) => _rules[type].firstMatch(_str);
 
   List tokenize() {
-    var tmp = _str,
-        tokens = [];
-    List tok;
+    var tokens = [];
 
-    while ((tok = next)[0] != 'eos') {
-      tokens.add(tok);
+    while (_str.length > 0) {
+      var tok = next;
+      if (tok != null) {
+        tokens.add(tok);
+      }
     }
 
-    _str = tmp;
-    _prevIndents = 0;
+    while (_indents.length > 0) {
+      _indents.removeLast();
+      tokens.add(['outdent']);
+    }
 
-    tokens.add(tok);
+    tokens.add(['eos']);
 
-    Rewriter rw = new Rewriter(tokens);
+    return tokens;
 
-    return rw.rewrite();
+  }
+
+  List rewrite() {
+    var rewriter = new Rewriter(tokenize());
+    return rewriter.rewrite();
   }
 
   List get next {
-    var t = _stashed(),
-        tok = t != null ? t : _advance();
-
-    switch (tok[0]) {
-      case 'newline':
-      case 'indent':
-        ++lineno;
-        break;
-      case 'outdent':
-        if (_prev[0] != 'outdent') {
-          ++lineno;
-        }
-        break;
-    }
-
-    _prev = tok;
-    if (tok.length < 2) {
-      tok.add(null);
-    }
-    tok.add(lineno);
-    return tok;
+    List tok;
+    if ((tok = _stashed()) != null
+       || (tok = _comment()) != null
+       || (tok = _atkeyword()) != null
+       || (tok = _comment()) != null
+       || (tok = _important()) != null
+       || (tok = _url()) != null
+       || (tok = _function()) != null
+       || (tok = _brace()) != null
+       || (tok = _paren()) != null
+       || (tok = _hash()) != null
+       || (tok = _klass()) != null
+       || (tok = _string()) != null
+       || (tok = _dimension()) != null
+       || (tok = _ident()) != null
+       || (tok = _indentation()) != null
+       || (tok = _space()) != null
+       || (tok = _matching()) != null
+       || (tok = _operator()) != null
+       || (tok = _sep()) != null
+       ){ return tok; }
+    throw new Exception('parse error at:\n$_str');
   }
 
   void _skip(len) {
@@ -99,38 +90,37 @@ class Lexer {
 
   List _stashed() => _stash.length > 0 ? _stash.removeAt(0) : null;
 
-  List _advance() {
-    List t;
-    if ((t = _eos()) != null
-       || (t = _sep()) != null
-       || (t = _url()) != null
-       || (t = _atkeyword()) != null
-       || (t = _comment()) != null
-       || (t = _newline()) != null
-       || (t = _important()) != null
-       || (t = _fn()) != null
-       || (t = _brace()) != null
-       || (t = _paren()) != null
-       || (t = _color()) != null
-       || (t = _string()) != null
-       || (t = _dimension()) != null
-       || (t = _ident()) != null
-       || (t = _operator()) != null
-       || (t = _space()) != null
-       || (t = _selector()) != null
-       ){ return t; }
-    throw new Exception('parse error');
-  }
+  List _indentation() {
+    var match = _match('indentation');
+    if (match != null) {
+      _skip(match);
+      var spaces = match.group(1) != null ? match.group(1).length : 0,
+          prev = _indents.length > 0 ? _indents.last : 0;
 
-  List _eos() {
-    if (_str.length > 0) return null;
-    if (_indentStack.length > 0) {
-      _indentStack.removeAt(0);
-      return ['outdent'];
-    } else {
-      return ['eos'];
+      if (spaces > prev) {
+        return _indent(spaces);
+      }
+      if (spaces < prev) {
+        return _outdent(spaces);
+      }
+
+      return ['newline'];
     }
   }
+
+  List _indent(num spaces) {
+    _indents.add(spaces);
+    return ['indent'];
+  }
+
+  List _outdent(num spaces) {
+    while (_indents.length > 0 && _indents.last > spaces) {
+      _indents.removeLast();
+      _stash.add(['outdent']);
+    }
+    return _stashed();
+  }
+
 
   List _sep() {
     var match = _match('sep');
@@ -141,11 +131,10 @@ class Lexer {
   }
 
   List _url() {
-    if (!_isURL) return null;
-    var match = _match('urlchars');
+    var match = _match('url');
     if (match != null) {
       _skip(match);
-      return ['literal', new Literal(match.group(0))];
+      return ['url', match.group(1)];
     }
   }
 
@@ -153,11 +142,7 @@ class Lexer {
     var match = _match('atkeyword');
     if (match != null) {
       _skip(match);
-      var type = match.group(1);
-      if (match.group(2) != null) {
-        type = 'keyframes';
-      }
-      return ['atkeyword', type];
+      return ['atkeyword', match.group(1)];
     }
   }
 
@@ -165,62 +150,8 @@ class Lexer {
     var match = _match('comment');
     if (match != null) {
       var lines = match.group(0).split('\n').length;
-      lineno += lines;
       _skip(match);
-      return ['comment', new Comment(match.group(0))];
-    }
-  }
-
-  List _newline() {
-    RegExp re;
-    Match match;
-
-    if (_indentRe != null) {
-      match = _indentRe.firstMatch(_str);
-    } else {
-      re = new RegExp(r'^\n([\t]*)[ \t]*', multiLine: true); // tabs
-      match = re.firstMatch(_str);
-
-      if (match != null && match.group(1).length == 0) {
-        re = new RegExp(r'^\n([ \t]*)', multiLine: true); // spaces
-        match = re.firstMatch(_str);
-      }
-
-      if (match != null && match.group(1).length > 0) {
-        _indentRe = re;
-      }
-    }
-
-    if (match != null) {
-      var indents = match.group(1).length;
-      List tok;
-
-      _skip(match);
-
-      if (_str.length > 0 && (_str[0] == ' ' || _str[0] == '\t')) {
-        throw new Exception('Invalid indentation. You can use tabs or spaces to indent, but not both.');
-      }
-
-      if (_str.length > 0 && _str[0] == '\n') {
-        ++lineno;
-        return _advance();
-      }
-      // Outdent
-      if (_indentStack.length > 0 && indents < _indentStack[0]) {
-        while (_indentStack.length > 0 && _indentStack[0] > indents) {
-          _stash.add(['outdent']);
-          _indentStack.removeAt(0);
-        }
-        tok = _stash.removeLast();
-      // Indent
-      } else if (indents > 0 && indents != (_indentStack.length > 0 ? _indentStack[0] : false)) {
-        _indentStack.insertRange(0, 1, indents);
-        tok = ['indent'];
-      // Newline
-      } else {
-        tok = ['newline'];
-      }
-      return tok;
+      return ['comment', match.group(0)];
     }
   }
 
@@ -228,17 +159,15 @@ class Lexer {
     var match = _match('important');
     if (match != null) {
       _skip(match);
-      return ['id', '!important'];
+      return ['literal', '!important'];
     }
   }
 
-  List _fn() {
+  List _function() {
     var match = _match('function');
     if (match != null) {
       _skip(match);
-      var name = match.group(1);
-      _isURL = 'url' == name;
-      return ['fn', name];
+      return ['function', match.group(1)];
     }
   }
 
@@ -246,27 +175,32 @@ class Lexer {
     var match = _match('brace');
     if (match != null) {
       _skip(1);
-      return [match.group(1)];
+      return [match.group(0)];
     }
   }
 
   List _paren() {
     var match = _match('paren');
     if (match != null) {
-      var paren = match.group(1);
+      var paren = match.group(0);
       _skip(match);
-      if (paren == ')') {
-        _isURL = false;
-      }
       return [paren];
     }
   }
 
-  List _color() {
-    var match = _match('color');
+  List _hash() {
+    var match = _match('hash');
     if (match != null) {
       _skip(match);
-      return ['color', new Color(match.group(1))];
+      return ['hash', match.group(0)];
+    }
+  }
+
+  List _klass() {
+    var match = _match('klass');
+    if (match != null) {
+      _skip(match);
+      return ['klass', match.group(0)];
     }
   }
 
@@ -277,7 +211,7 @@ class Lexer {
         quote = match.group(0)[0];
       _skip(match);
       s = s.substring(1, s.length - 1).replaceAll('\n', '\n');
-      return ['string', new Str(s, quote)];
+      return ['string', [s, quote]];
     }
   }
 
@@ -285,7 +219,7 @@ class Lexer {
     var match = _match('dimension');
     if (match != null) {
       _skip(match);
-      return ['dimension', new Dimension(match.group(1), match.group(2))];
+      return ['dimension', [match.group(1), match.group(2)]];
     }
   }
 
@@ -293,17 +227,23 @@ class Lexer {
     var match = _match('ident');
     if (match != null) {
       _skip(match);
-      return ['ident', match.group(1)];
+      return ['ident', match.group(0)];
     }
   }
 
   List _operator() {
     var match = _match('operator');
     if (match != null) {
-      var op = match.group(1);
       _skip(match);
-      _isURL = false;
-      return [op];
+      return [match.group(0)];
+    }
+  }
+
+  List _matching() {
+    var match = _match('matching');
+    if (match != null) {
+      _skip(match);
+      return ['matching', match.group(0)];
     }
   }
 
@@ -312,15 +252,6 @@ class Lexer {
     if (match != null) {
       _skip(match);
       return ['space'];
-    }
-  }
-
-  List _selector() {
-    var match = _match('selector');
-    if (match != null) {
-      var selector = match.group(0);
-      _skip(match);
-      return ['selector', selector];
     }
   }
 

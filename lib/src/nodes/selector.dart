@@ -1,13 +1,13 @@
 part of nodes;
 
 class Selector extends Node implements Node {
-  String selector;
+  List segments;
 
-  Selector(this.selector);
+  Selector(this.segments);
 
   css(env) {
     return env.compress > 4
-      ? selector.replaceAll(new RegExp(r'\s*([+~>])\s*'), '\1').trim()
-      : selector.trim();
+      ? Strings.join(segments, '').replaceAll(new RegExp(r'\s*([+~>])\s*'), '\1').trim()
+      : Strings.join(segments, '').trim();
   }
 }

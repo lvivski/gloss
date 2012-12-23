@@ -17,7 +17,6 @@ class Rewriter {
 
   List rewrite() {
     return _addImplicitBraces()
-           ._findSelectors()
            ._tokens;
   }
 
@@ -42,7 +41,7 @@ class Rewriter {
       return (tag == 'newline' || tag == 'outdent') && sameLine;
     };
     Action action = (token, i) {
-      var tok = ['}', false, token[2]];
+      var tok = ['}'];
       _tokens.insertRange(i, 1, tok);
     };
 
@@ -59,38 +58,16 @@ class Rewriter {
         return 1;
       }
 
-      if (!((tag == 'ident' || tag == 'dimension' || tag == 'selector' || tag == ':') && stack.length > 0 && stack[stack.length - 1][0] != '{')) {
+      if (!((tag == 'ident' || tag == 'dimension' || tag == ':') && stack.length > 0 && stack[stack.length - 1][0] != '{')) {
         return 1;
       }
 
       sameLine = true;
       stack.add(['{']);
-      var tok = ['{', null, token[2]];
+      var tok = ['{'];
       tokens.insertRange(i - 1, 1, tok);
 
       _detectEnd(i + 2, condition, action);
-      return 1;
-    });
-  }
-
-  Rewriter _findSelectors() {
-    return _scan((token, i, tokens) {
-      if (token[0] == 'ident' && ((tokens[i + 1][0] == '{') || (tokens[i + 2][0] == '{'))) {
-        token[0] = 'selector';
-        tokens[i] = token;
-      }
-      if (token[0] == 'ident' && (tokens[i + 1][0] == 'space' && tokens[i + 2][0] == 'selector')) {
-        token[0] = 'selector';
-        token[1] = token[1].concat(' ${tokens[i + 2][1]}');
-        tokens[i] = token;
-        tokens.removeRange(i + 1, 2);
-      }
-      if (token[0] == ':' && tokens[i + 1][0] == 'ident' && tokens[i - 1][0] != 'ident') {
-        token[1] = token[0].concat('${tokens[i + 1][1]}');
-        token[0] = 'selector';
-        tokens[i] = token;
-        tokens.removeRange(i + 1, 1);
-      }
       return 1;
     });
   }
