@@ -17,5 +17,23 @@ html
 ''').tokenize();
       expect(t, equals([['ident', 'html'], ['indent'], ['ident', 'border'], [':'], ['space'], ['dimension', ['1', 'px']], ['space'], ['ident', 'solid'], ['newline'], ['ident', 'body'], ['indent'], ['ident', 'background'], [':'], ['space'], ['hash', '#fff'], ['outdent'], ['eos']]));
     });
+
+
+    test('should parse with semicolons', () {
+      var t = new Lexer('''
+.a
+  color: red;
+  & .b
+    background: url(image.png), #fff;
+  &:hover
+    color: green;
+''').tokenize();
+      expect(t, equals([['klass', '.a'], ['indent'],
+                        ['ident', 'color'], [':'], ['space'], ['ident', 'red'], [';'], ['newline'],
+                        ['&'], ['space'], ['klass', '.b'],
+                        ['indent'], ['ident', 'background'], [':'], ['space'], ['url', 'image.png'], [','], ['space'], ['hash', '#fff'], [';'], ['outdent'],
+                        ['&'], [':'], ['ident', 'hover'], ['indent'], ['ident', 'color'], [':'], ['space'], ['ident', 'green'], [';'],
+                        ['outdent'], ['eos']]));
+    });
   });
 }

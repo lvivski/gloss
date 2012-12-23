@@ -15,9 +15,9 @@ void main() {
 
       expect(Gloss.parse('''html
   a
-    color: #00f
+    color: #00f;
     &:hover
-      color: #f00'''), equalsIgnoringWhitespace('html a { color: #0000ff; } html a:hover { color: #ff0000; }'));
+      color: #f00;'''), equalsIgnoringWhitespace('html a { color: #0000ff; } html a:hover { color: #ff0000; }'));
 
       expect(Gloss.parse('''html
   :first-child {color: #f00}'''), equalsIgnoringWhitespace('html :first-child { color: #ff0000; }'));

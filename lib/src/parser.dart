@@ -310,6 +310,7 @@ class Parser {
       ret = new Ident(ident);
     }
     _state.removeLast();
+    _skipSpaces();
     _accept(';');
 
     return ret;
@@ -317,8 +318,8 @@ class Parser {
 
   Expression _list() {
     var node = _expression();
+    _skipSpaces();
     while (_accept(',') != null || _accept('indent') != null) {
-      _skipSpaces();
       if (node.isList) {
         node.push(_expression());
       } else {
@@ -327,7 +328,6 @@ class Parser {
         list.push(_expression());
         node = list;
       }
-
     }
     return node;
   }
@@ -361,7 +361,7 @@ class Parser {
   Node _additive() {
     var node = _multiplicative();
     List op;
-
+    _skipSpaces();
     while ((op = _accept('+')) != null || (op = _accept('-')) != null) {
       _operand = true;
       node = new Binop(op[0], node, _multiplicative());
@@ -373,7 +373,7 @@ class Parser {
   Node _multiplicative() {
     var node = _primary();
     List op;
-
+    _skipSpaces();
     while ((op = _accept('*')) != null
       || (op = _accept('/')) != null
       || (op = _accept('%')) != null) {
@@ -394,6 +394,7 @@ class Parser {
   }
 
   Node _primary() {
+    _skipSpaces();
     if (_accept('(') != null) {
       ++_parens;
       var expr = _expression();

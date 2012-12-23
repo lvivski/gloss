@@ -20,7 +20,7 @@ class Lexer {
     'comment': new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?|^\/\/.*'),
     'matching': new RegExp('^[~^\$*|]='),
     'function': new RegExp(r'^(-?[_a-zA-Z\$-]*)\('),
-    'operator': new RegExp(r'^[-+*\/%]|[~,>:=&]'),
+    'operator': new RegExp(r'^[-+*\/%]|^[~,>:=&]'),
     'important': new RegExp('^! *important'),
     'brace': new RegExp(r'^[{}\[\]]'),
     'paren': new RegExp('^[()]'),
