@@ -7,6 +7,6 @@ class Scope {
     locals[ident.name] = ident.value;
   }
 
-  Node lookup(name) => locals[name];
+  lookup(name) => locals[name];
 
 }

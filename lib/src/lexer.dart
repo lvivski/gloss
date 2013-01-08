@@ -227,7 +227,11 @@ class Lexer {
     var match = _match('ident');
     if (match != null) {
       _skip(match);
-      return ['ident', match.group(0)];
+      var ident = match.group(0);
+      if (ident[0] == r'$') {
+        ident = ident.substring(1);
+      }
+      return ['ident', ident];
     }
   }
 

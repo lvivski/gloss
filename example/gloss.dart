@@ -1,16 +1,18 @@
 import '../lib/gloss.dart';
 
 main() {
-  var src ='''
+  var src =r'''
+clr = #ddd
+
 .a
   color: red
-  background: url(image.png)    , #fff;
-  background: #fff, #000  ;   
+  background: url(image.png),#fff
+  background: #fff, #000
   &:hover
-    color: blue;
+    color: add(blue, green)
     margin: 10 + 15px
   .b & {
-    color: green;
+    color: $clr
   }
 ''';
   print(Gloss.parse(src));

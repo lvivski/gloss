@@ -1,6 +1,10 @@
 library env;
 
 import 'nodes.dart';
+import 'dart:math';
+
+part 'functions.dart';
+part 'colors.dart';
 
 class Env {
   num compress, _spaces, indents = 0;
@@ -14,12 +18,36 @@ class Env {
 
   bool isURL = false;
 
-  Env([this.compress = 0, this._spaces = 2, this.path]):
-    stack = [new Scope()], buff = new StringBuffer();
+  Env([this.compress = 0, this._spaces = 2, this.path]) {
+    var scope = new Scope();
+    this.stack = [scope];
+    this.buff = new StringBuffer();
 
-  Node lookup(name) {
-    var i = stack.length;
-    Node needle;
+    for (var name in colors.keys) {
+      var rgb = colors[name],
+          rgba = new RGBA(rgb[0], rgb[1], rgb[2], 1),
+          node = new Ident(name, rgba);
+      scope.add(node);
+    }
+
+    for (var name in modes.keys) {
+      var mode = modes[name],
+          function = (color1, color2) {
+            var r = mode(color1.r, color2.r),
+                g = mode(color1.g, color2.g),
+                b = mode(color1.b, color2.b),
+                a = color1.a + color2.a * (1 - color1.a);
+            return new RGBA(r, g, b, a);
+          };
+
+      scope.add(new Ident(name, function));
+    }
+
+  }
+
+  lookup(name) {
+    var i = stack.length,
+        needle;
 
     while (i-- > 0) {
       if ((needle = stack[i].lookup(name)) != null) {

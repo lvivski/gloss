@@ -11,7 +11,7 @@ class Call implements Node {
     var fn = env.lookup(name);
     if (fn != null) {
       try {
-        if (fn.params != null) { // user defined mixin
+        if (fn is Definition) { // user defined mixin
           return mixin(fn, env);
         }
         return bif(fn, env);
@@ -58,9 +58,18 @@ class Call implements Node {
 
   bif(fn, env) {
     var a = args.nodes.map((arg) {
-      return arg.nodes[0].nodes ? arg.nodes[0].nodes[0] : arg.nodes[0];
+      return arg.nodes[0] is Expression ? arg.nodes[0].nodes[0] : arg.nodes[0];
     });
 
-    return fn.apply(null, a);
+    switch (a.length) {
+      case 1:
+        return fn(a[0]);
+      case 2:
+        return fn(a[0], a[1]);
+      case 3:
+        return fn(a[0], a[1], a[2]);
+    }
+
+    // return Function.apply(fn, a);
   }
 }
