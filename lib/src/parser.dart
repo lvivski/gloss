@@ -449,6 +449,9 @@ class Parser {
       }
       if (out) break;
     }
+    while((tok = this.lookahead(i))[0] == 'space') {
+      ++i;
+    }
     switch (_currentState) {
       case 'expression':
         return _fncall();
@@ -474,7 +477,7 @@ class Parser {
     _skipWhitespace();
     _expect(')');
     _state.removeLast();
-
+    _skipSpaces();
     _state.add('function');
     var f = new Definition(name, params);
     f.block = _block();
@@ -500,7 +503,7 @@ class Parser {
 
     while ((tok = _accept('ident')) != null) {
       _accept('space');
-      params.push(node = tok[1]);
+      params.push(node = new Ident(tok[1]));
       if (_accept('=') != null) {
         node.value = _expression();
       }

@@ -11,7 +11,7 @@ class Declaration implements Node {
 
     if (env.calling.indexOf(property) < 0
         && (fn = env.lookup(property)) != null
-        && (fn is Block)
+        && (fn is Definition)
     ) {
       args = new Arguments(true);
       if (!value.isList) {

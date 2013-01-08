@@ -19,7 +19,7 @@ class Lexer {
     'indentation': new RegExp(r'^\n( *)'),
     'comment': new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?|^\/\/.*'),
     'matching': new RegExp('^[~^\$*|]='),
-    'function': new RegExp(r'^(-?[_a-zA-Z\$-]*)\('),
+    'function': new RegExp(r'^(-?[_a-zA-Z\$-]+)\('),
     'operator': new RegExp(r'^[-+*\/%]|^[~,>:=&]'),
     'important': new RegExp('^! *important'),
     'brace': new RegExp(r'^[{}\[\]]'),

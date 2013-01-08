@@ -2,7 +2,10 @@ import '../lib/gloss.dart';
 
 main() {
   var src =r'''
-clr = #ddd
+bg-gradient(start, end) {
+  background: -webkit-linear-gradient(start, end);
+  background: linear-gradient(start, end);
+}
 
 .a
   color: red
@@ -12,7 +15,8 @@ clr = #ddd
     color: add(blue, green)
     margin: 10 + 15px
   .b & {
-    color: $clr
+    color: #ddd
+    bg-gradient: red, blue
   }
 ''';
   print(Gloss.parse(src));

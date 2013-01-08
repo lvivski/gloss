@@ -35,5 +35,17 @@ html
                         ['&'], [':'], ['ident', 'hover'], ['indent'], ['ident', 'color'], [':'], ['space'], ['ident', 'green'], [';'],
                         ['outdent'], ['eos']]));
     });
+
+    test('should parse mixins', () {
+      var t = new Lexer('''
+mixin(param, param) {
+  property: value
+}
+''').tokenize();
+
+      expect(t, equals([['function', 'mixin'], ['ident', 'param'], [','], ['space'], ['ident', 'param'], [')'], ['space'], ['{'],
+                        ['indent'], ['ident', 'property'], [':'], ['space'], ['ident', 'value'],
+                        ['outdent'], ['}'], ['newline'], ['eos']]));
+    });
   });
 }
