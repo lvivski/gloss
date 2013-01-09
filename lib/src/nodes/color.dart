@@ -1,6 +1,6 @@
 part of nodes;
 
-class Color {
+class Color extends Node {
   factory Color(hash) {
     bool single = hash.length == 3;
     num r = int.parse('0x${single ? '${hash[0]}${hash[0]}' : hash.substring(0, 2)}'),

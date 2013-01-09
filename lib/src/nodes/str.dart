@@ -1,6 +1,6 @@
 part of nodes;
 
-class Str extends Node implements Node {
+class Str extends Node {
   String value, quote;
 
   Str(this.value, [this.quote = "'"]);

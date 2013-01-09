@@ -5,7 +5,7 @@ void main() {
   group('selector', () {
     test('can be a tag', () {
       expect(Gloss.parse('html {}'), hasLength(0));
-      expect(Gloss.parse('html { color:black }'), equalsIgnoringWhitespace('html { color: black; }'));
+      expect(Gloss.parse('html { color:black }'), equalsIgnoringWhitespace('html { color: #000000; }'));
     });
 
     test('can have nesting', () {

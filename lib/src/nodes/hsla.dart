@@ -1,6 +1,6 @@
 part of nodes;
 
-class HSLA extends Node implements Node {
+class HSLA extends Node {
   num h, s, l, a;
 
   HSLA(h,s,l,a) {

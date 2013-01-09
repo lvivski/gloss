@@ -27,7 +27,7 @@ Map coercion = {
   }
 };
 
-class Dimension extends Node implements Node {
+class Dimension extends Node {
   num value;
   String unit;
 

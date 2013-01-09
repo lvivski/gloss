@@ -1,6 +1,6 @@
 part of nodes;
 
-class Definition extends Node implements Node {
+class Definition extends Node {
   String name;
   Params params;
   Block block;

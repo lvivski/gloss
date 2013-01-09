@@ -65,15 +65,6 @@ class Call implements Node {
       return arg.nodes[0] is Expression ? arg.nodes[0].nodes[0] : arg.nodes[0];
     });
 
-    switch (a.length) {
-      case 1:
-        return fn(a[0]);
-      case 2:
-        return fn(a[0], a[1]);
-      case 3:
-        return fn(a[0], a[1], a[2]);
-    }
-
-    // return Function.apply(fn, a);
+    return Function.apply(fn, a);
   }
 }

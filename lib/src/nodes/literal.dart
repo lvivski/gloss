@@ -1,6 +1,6 @@
 part of nodes;
 
-class Literal extends Node implements Node {
+class Literal extends Node {
   String value;
 
   Literal(this.value);

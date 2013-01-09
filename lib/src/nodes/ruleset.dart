@@ -23,8 +23,8 @@ class Ruleset implements Node {
     stack.add(selectors);
     if (block.hasDeclarations) {
       var sel = normalize(stack, env);
-      env.buff.add(env.indent)
-              .add(Strings.join(sel, env.compress > 3 ? ',' : ',\n${env.indent}'));
+      env.buff..add(env.indent)
+              ..add(Strings.join(sel, env.compress > 3 ? ',' : ',\n${env.indent}'));
     }
 
     block.css(env);

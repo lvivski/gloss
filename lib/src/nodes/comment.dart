@@ -1,6 +1,6 @@
 part of nodes;
 
-class Comment extends Node implements Node {
+class Comment extends Node {
   String value;
 
   Comment(this.value);

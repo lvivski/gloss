@@ -1,5 +1,5 @@
 part of nodes;
-class Params extends Node implements Node {
+class Params extends Node {
   List nodes;
 
   Params([this.nodes]) {

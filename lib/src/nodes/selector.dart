@@ -1,6 +1,6 @@
 part of nodes;
 
-class Selector extends Node implements Node {
+class Selector extends Node {
   List segments;
 
   Selector(this.segments);

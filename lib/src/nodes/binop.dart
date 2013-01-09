@@ -1,6 +1,6 @@
 part of nodes;
 
-class Binop extends Node implements Node {
+class Binop extends Node {
   String op;
   Node left, right;
 
