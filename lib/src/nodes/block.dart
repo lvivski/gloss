@@ -63,7 +63,7 @@ class Block implements Node {
         }
       });
 
-      nodes = nodes.filter((_) => !!_);
+      nodes = nodes.where((_) => !!_);
     }
 
     return this;

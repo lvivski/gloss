@@ -65,4 +65,4 @@ class RGBA extends Node implements Color {
 
 clamp(num n) => max(0, min(n, 255));
 
-pad(num n) => n < 16 ? '0${n.toRadixString(16)}' : n.toRadixString(16);
+pad(num n) => n < 16 ? '0${n.toInt().toRadixString(16)}' : n.toInt().toRadixString(16);

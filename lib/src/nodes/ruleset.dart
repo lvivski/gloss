@@ -13,7 +13,7 @@ class Ruleset implements Node {
   push(selector) => selectors.add(selector);
 
   eval(env) {
-    selectors = selectors.map((selector) => selector.eval(env));
+    selectors = selectors.mappedBy((selector) => selector.eval(env)).toList();
     block = block.eval(env);
     return this;
   }
