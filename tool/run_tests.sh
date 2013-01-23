@@ -1,6 +1,16 @@
 #!/bin/bash
 
-ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../test" && pwd )"
+set -e
 
-dart --enable-checked-mode $ROOT_DIR/lexer_test.dart
-dart --enable-checked-mode $ROOT_DIR/gloss_test.dart
+DIR=$( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
+pushd $DIR/..
+echo "Analyzing library for warnings or type errors"
+dart_analyzer --fatal-warnings --fatal-type-errors lib/*.dart
+popd
+
+for test in $DIR/../test/*_test.dart
+do
+	echo "Running test suite: $test"
+	dart --checked $test
+done
