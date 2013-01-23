@@ -24,14 +24,14 @@ class Ruleset implements Node {
     if (block.hasDeclarations) {
       var sel = normalize(stack, env);
       env.buff..add(env.indent)
-              ..add(Strings.join(sel, env.compress > 3 ? ',' : ',\n${env.indent}'));
+              ..add(sel.join(env.compress > 3 ? ',' : ',\n${env.indent}'));
     }
 
     block.css(env);
     stack.removeLast();
   }
 
-  normalize(stack, env) {
+  List normalize(stack, env) {
     var selectors = [],
         buff = [];
 

@@ -86,7 +86,7 @@ class Block implements Node {
       if (env.compress < 4) {
         arr.add('');
       }
-      env.buff..add(Strings.join(arr, env.compress > 4 ? ';' : ';\n'))
+      env.buff..add(arr.join(env.compress > 4 ? ';' : ';\n'))
               ..add(env.compress == 4 ? '\n' : '')
               ..add(env.indent)
               ..add(env.compress > 4 ? '}' : '}\n');

@@ -26,7 +26,7 @@ class Call implements Node {
 
   css(env) {
     var a = args.nodes.mappedBy((arg) => arg.css(env));
-    a = Strings.join(a, env.compress > 4 ? ',' : ', ');
+    a = a.join(env.compress > 4 ? ',' : ', ');
     return '$name($a)';
   }
 

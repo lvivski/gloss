@@ -7,7 +7,7 @@ class Selector extends Node {
 
   css(env) {
     return env.compress > 4
-      ? Strings.join(segments, '').replaceAll(new RegExp(r'\s*([+~>])\s*'), '\1').trim()
-      : Strings.join(segments, '').trim();
+      ? segments.join('').replaceAll(new RegExp(r'\s*([+~>])\s*'), '\1').trim()
+      : segments.join('').trim();
   }
 }
