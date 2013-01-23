@@ -2,15 +2,16 @@
 
 set -e
 
-DIR=$( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+DIR=$( cd $( dirname "${BASH_SOURCE[0]}" )/.. && pwd )
 
-pushd $DIR/..
 echo "Analyzing library for warnings or type errors"
 dart_analyzer --fatal-warnings --fatal-type-errors lib/*.dart
-popd
+rm -r out
 
-for test in $DIR/../test/*_test.dart
+for test in $DIR/test/*_test.dart
 do
-	echo "Running test suite: $test"
+	echo -e "\nRunning test suite: $(basename $test)"
 	dart --checked $test
 done
+
+echo -e "\n[32m✓ OK[0m"
