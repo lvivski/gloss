@@ -25,7 +25,7 @@ class Call implements Node {
   }
 
   css(env) {
-    var a = args.nodes.mappedBy((arg) => arg.css(env));
+    var a = args.nodes.map((arg) => arg.css(env));
     a = a.join(env.compress > 4 ? ',' : ', ');
     return '$name($a)';
   }
@@ -61,7 +61,7 @@ class Call implements Node {
   }
 
   bif(fn, env) {
-    var a = args.nodes.mappedBy((arg) {
+    var a = args.nodes.map((arg) {
       return arg.nodes[0] is Expression ? arg.nodes[0].nodes[0] : arg.nodes[0];
     });
 

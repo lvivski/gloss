@@ -10,7 +10,7 @@ class Arguments extends Expression implements Node {
       map[node] = map[node].eval(env);
     });
 
-    nodes = nodes.mappedBy((node) {
+    nodes = nodes.map((node) {
       return node.eval(env);
     }).toList();
 

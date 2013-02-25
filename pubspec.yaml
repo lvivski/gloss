@@ -1,7 +1,7 @@
 name: gloss
-version: 0.0.2
-description: Glamorous CSS preprocessor
+version: 0.0.2+hotfix
 author: Yehor Lvivski <lvivski@gmail.com>
+description: Glamorous CSS preprocessor
 homepage: http://github.com/lvivski/gloss
 dependencies:
-  unittest: ">=0.2.7"
+  unittest: '>=0.2.7'

@@ -21,7 +21,7 @@ class Stylesheet implements Node {
         }
       });
     } else {
-      nodes = nodes.mappedBy((node) => node.eval(env)).toList();
+      nodes = nodes.map((node) => node.eval(env)).toList();
     }
 
     return this;

@@ -25,20 +25,20 @@ class Expression implements Node {
   }
 
   eval(env) {
-    nodes = nodes.mappedBy((node) => node.eval(env)).toList();
+    nodes = nodes.map((node) => node.eval(env)).toList();
     return this;
   }
 
   css(env) {
     var buff = new StringBuffer(),
-        n = nodes.mappedBy((node) => node.css(env));
+        n = nodes.map((node) => node.css(env));
 
     for (var i = 0, len = n.length; i < len; i++) {
       var last = i == (len - 1);
-      buff.add(n.elementAt(i));
+      buff.write(n.elementAt(i));
       if (n.elementAt(i) == '/' || (len < i + 1 && n.elementAt(i + 1) == '/')) return;
       if (last) continue;
-      buff.add(isList
+      buff.write(isList
         ? (env.compress > 4 ? ',' : ', ')
         : (env.isURL ? '' : ' '));
     }

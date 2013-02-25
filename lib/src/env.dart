@@ -70,7 +70,7 @@ class Env {
 String times(s, n) {
   var sb = new StringBuffer();
   for(int i = 0; i < n; i++) {
-    sb.add(s);
+    sb.write(s);
   }
   return sb.toString();
 }
