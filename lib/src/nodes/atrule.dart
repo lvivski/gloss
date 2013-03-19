@@ -12,16 +12,16 @@ class Atrule implements Node {
   }
 
   css(env) {
-    env.buff.add(name);
+    env.buff.write(name);
     if (block != null) {
-      env.buff.add(env.compress > 4 ? '{' : ' {\n');
+      env.buff.write(env.compress > 4 ? '{' : ' {\n');
       ++env.indents;
       block.css(env);
       --env.indents;
-      env.buff.add('}')
-              .add(env.compress > 4 ? '' : '\n');
+      env.buff..write('}')
+              ..write(env.compress > 4 ? '' : '\n');
     } else {
-      env.buff.add(env.compress > 4 ? ';' : ';\n');
+      env.buff..write(env.compress > 4 ? ';' : ';\n');
     }
   }
 }

@@ -9,7 +9,7 @@ class Lexer {
 
   final Map<String,RegExp> _rules = {
     'ident': new RegExp('^-?[_a-zA-Z\$-]+'),
-    'atkeyword': new RegExp('^@-?[_a-zA-Z\$-]+'),
+    'atkeyword': new RegExp('^@(-?[_a-zA-Z\$-]+)'),
     'string': new RegExp('^"[^"]*"|^\'[^\']*\''),
     'hash': new RegExp(r'^#[_a-zA-Z0-9\$-]+'),
     'klass': new RegExp(r'^\.[_a-zA-Z\$-]+'),

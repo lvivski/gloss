@@ -242,11 +242,11 @@ class Parser {
   }
 
   Atrule _atkeyword() {
-    var rule = '@#{next[1]}';
+    var rule = '@${next[1]}';
     while (peek[0] != '{') {
       _accept('newline');
       _accept('indent');
-      rule.concat(next[1]);
+      rule += next[1];
     }
     var atrule = new Atrule(rule);
     _state.add('atrule');
