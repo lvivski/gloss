@@ -73,7 +73,7 @@ class Block implements Node {
     var node;
 
     if (this.hasDeclarations) {
-      env.buff.add(env.compress > 4 ? '{' : ' {\n');
+      env.buff.write(env.compress > 4 ? '{' : ' {\n');
       var arr = [];
       ++env.indents;
       for (var i = 0, len = nodes.length; i < len; ++i) {
@@ -86,10 +86,10 @@ class Block implements Node {
       if (env.compress < 4) {
         arr.add('');
       }
-      env.buff..add(arr.join(env.compress > 4 ? ';' : ';\n'))
-              ..add(env.compress == 4 ? '\n' : '')
-              ..add(env.indent)
-              ..add(env.compress > 4 ? '}' : '}\n');
+      env.buff..write(arr.join(env.compress > 4 ? ';' : ';\n'))
+              ..write(env.compress == 4 ? '\n' : '')
+              ..write(env.indent)
+              ..write(env.compress > 4 ? '}' : '}\n');
     }
 
     for (var i = 0, len = nodes.length; i < len; ++i) {

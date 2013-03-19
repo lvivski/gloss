@@ -43,7 +43,7 @@ class Call implements Node {
       scope.add(new Ident(node.name, arg));
     });
 
-    var mixin = fn.block.nodes.mappedBy((node) => node.eval(env)),
+    var mixin = fn.block.nodes.map((node) => node.eval(env)),
         len = block.nodes.length,
         head = block.nodes.getRange(0, block.index),
         tail = block.nodes.getRange(block.index + 1, len - block.index - 1);
@@ -63,7 +63,7 @@ class Call implements Node {
   bif(fn, env) {
     var a = args.nodes.map((arg) {
       return arg.nodes[0] is Expression ? arg.nodes[0].nodes[0] : arg.nodes[0];
-    });
+    }).toList();
 
     return Function.apply(fn, a);
   }

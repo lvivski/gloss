@@ -31,7 +31,7 @@ class Stylesheet implements Node {
     nodes.forEach((node) {
       var ret = node.css(env);
       if (ret != null) {
-        env.buff.add('$ret\n');
+        env.buff.write('$ret\n');
       }
     });
 
