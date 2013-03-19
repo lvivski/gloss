@@ -1,5 +1,5 @@
 # Gloss
-Glamour CSS preprocessor
+Glamorous CSS preprocessor for Dart 
 
 [![](https://drone.io/lvivski/gloss/status.png)](https://drone.io/lvivski/gloss/latest)
 
