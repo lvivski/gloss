@@ -4,7 +4,7 @@ Glamorous CSS preprocessor for Dart
 [![](https://drone.io/lvivski/gloss/status.png)](https://drone.io/lvivski/gloss/latest)
 
 ## Syntax
-Gloss is the dynamic stylesheet language. It supports both regular CSS syntax and nested syntax. You can create variables and mixing.
+Gloss is the dynamic stylesheet language. It supports both regular CSS syntax and nested syntax. You can also create variables and mixins.
 
 ### Nesting
 You can use `&` to override the default selectors nesting order
@@ -53,11 +53,12 @@ produces
 ### Mixins
 Mixins can be used as a block of properties.
 ```css
-bg-gradient(start, end)
+background-gradient(start, end)
   background: -webkit-linear-gradient(start, end);
   background: linear-gradient(start, end);
+
 .a
-	bg-gradient: red, blue
+	background-gradient: red, blue
 ```
 output:
 ```css
