@@ -35,6 +35,15 @@ class Dimension extends Node {
     this.value = value is num ? value : double.parse(value);
     this.unit = unit != null ? unit : '';
   }
+  
+  parse(num n) {
+    var i = n.toInt();
+    if (i == n) {
+      return i;
+    } else {
+      return n;
+    }
+  }
 
   operate(String op, Dimension other) {
     if ((op == '-' || op == '+') && other.unit == '%') {
@@ -71,7 +80,7 @@ class Dimension extends Node {
   }
 
   css(env) {
-    var n = this.value;
+    var n = parse(this.value);
 
     if (env.compress > 0) {
       var isFloat = n != (n | 0);
