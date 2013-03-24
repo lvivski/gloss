@@ -9,7 +9,7 @@ class Ident implements Node {
   eval(env) {
     if (value == null) {
       value = env.lookup(name);
-      return value != null ? value.eval(env) : this;
+      return value != null && value is! Function ? value.eval(env) : this;
     } else {
       value = value.eval(env);
       env.scope.add(this);

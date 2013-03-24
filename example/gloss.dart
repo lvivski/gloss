@@ -2,7 +2,11 @@ import '../lib/gloss.dart';
 
 main() {
   var src =r'''
-bg-gradient(start, end) {
+@media all, screen
+  body
+    width: 500px
+
+background-gradient(start, end) {
   background: -webkit-linear-gradient(start, end);
   background: linear-gradient(start, end);
 }
@@ -16,7 +20,7 @@ bg-gradient(start, end) {
     margin: 10 + 15px
   .b & {
     color: #ddd
-    bg-gradient: red, blue
+    background-gradient: red, blue
   }
 ''';
   print(Gloss.parse(src));
