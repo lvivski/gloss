@@ -58,28 +58,11 @@ class Lexer {
   }
 
   List get next {
-    List tok;
-    if ((tok = _stashed()) != null
-       || (tok = _comment()) != null
-       || (tok = _atkeyword()) != null
-       || (tok = _comment()) != null
-       || (tok = _important()) != null
-       || (tok = _url()) != null
-       || (tok = _function()) != null
-       || (tok = _brace()) != null
-       || (tok = _paren()) != null
-       || (tok = _hash()) != null
-       || (tok = _klass()) != null
-       || (tok = _string()) != null
-       || (tok = _dimension()) != null
-       || (tok = _ident()) != null
-       || (tok = _indentation()) != null
-       || (tok = _space()) != null
-       || (tok = _matching()) != null
-       || (tok = _operator()) != null
-       || (tok = _sep()) != null
-       ){ return tok; }
-    throw new Exception('parse error at:\n$_str');
+    var nodes = [_stashed, _comment, _atkeyword, _important, _url, _function, _brace, _paren, _hash,
+             _klass, _string, _dimension, _ident, _indentation, _space, _matching, _operator, _sep];
+    
+    return nodes.map((node) => node())
+        .firstWhere((List v) => v != null, orElse: (){ throw new Exception('parse error at:\n$_str'); });
   }
 
   void _skip(len) {
