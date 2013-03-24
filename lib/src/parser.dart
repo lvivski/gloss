@@ -242,11 +242,13 @@ class Parser {
   }
 
   Atrule _atkeyword() {
-    var keyword = '@${next[1]}',
-        rule = _expression();
-    var atrule = new Atrule(keyword, rule);
+    var keyword = '@${next[1]}';
+    var atrule = new Atrule(keyword);
     _state.add('atrule');
-    atrule.block = _block();
+    atrule.expression = _list();
+    if (peek[0] == '{') {
+      atrule.block = _block();  
+    }
     _state.removeLast();
     return atrule;
   }
@@ -274,6 +276,9 @@ class Parser {
         }
         break;
       case '{':
+        if (_currentState == 'expression') {
+          return new Ident(next[1]);
+        }
         return _selector();
       default:
         switch (_currentState) {

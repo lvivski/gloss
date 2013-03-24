@@ -5,7 +5,7 @@ class Atrule implements Node {
   Expression expression;
   var block;
 
-  Atrule(this.name, this.expression, [this.block]);
+  Atrule(this.name, [this.expression, this.block]);
 
   eval(env) {
     expression = expression.eval(env);
