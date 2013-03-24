@@ -10,7 +10,7 @@ class Lexer {
   final Map<String,RegExp> _rules = {
     'ident': new RegExp('^-?[_a-zA-Z\$-]+'),
     'atkeyword': new RegExp('^@(-?[_a-zA-Z\$-]+)'),
-    'string': new RegExp('^"[^"]*"|^\'[^\']*\''),
+    'string': new RegExp('^"([^"]*)"|^\'([^\']*)\''),
     'hash': new RegExp(r'^#[_a-zA-Z0-9\$-]+'),
     'klass': new RegExp(r'^\.[_a-zA-Z\$-]+'),
     'dimension': new RegExp(r'^(-?[0-9]*\.?[0-9]+)([a-zA-Z]+|%)?'),
@@ -193,7 +193,7 @@ class Lexer {
       var s = match.group(1),
         quote = match.group(0)[0];
       _skip(match);
-      s = s.substring(1, s.length - 1).replaceAll('\n', '\n');
+      s = s.replaceAll('\n', '\n');
       return ['string', [s, quote]];
     }
   }
