@@ -117,12 +117,12 @@ class Parser {
     }
   }
 
-  bool _looksLikeDefinition(i) {
+  bool _looksLikeDefinition(int i) {
     return lookahead(i)[0] == 'indent'
           || lookahead(i)[0] == '{';
   }
 
-  bool _isSelectorToken(i) {
+  bool _isSelectorToken(int i) {
     var la = lookahead(i)[0];
     return _selectorTokens.indexOf(la) != -1;
   }
@@ -242,13 +242,9 @@ class Parser {
   }
 
   Atrule _atkeyword() {
-    var rule = '@${next[1]}';
-    while (peek[0] != '{') {
-      _accept('newline');
-      _accept('indent');
-      rule += next[1];
-    }
-    var atrule = new Atrule(rule);
+    var keyword = '@${next[1]}',
+        rule = _expression();
+    var atrule = new Atrule(keyword, rule);
     _state.add('atrule');
     atrule.block = _block();
     _state.removeLast();
@@ -346,13 +342,19 @@ class Parser {
     return node;
   }
 
-  Expression _expression() {
+  Expression _expression([bool parens]) {
     var expr = new Expression();
     Node node;
 
     _state.add('expression');
+    if (?parens) {
+      expr.push(new Literal('('));
+    }
     while ((node = _additive()) != null) {
       expr.push(node);
+    }
+    if (?parens) {
+      expr.push(new Literal(')'));
     }
     _state.removeLast();
     return expr;
@@ -383,7 +385,7 @@ class Parser {
         _operand = false;
         return node;
       } else {
-        if (node != null) {
+        if (node == null) {
           _error('illegal unary "$op", missing left-hand operand');
         }
         node = new Binop(op[0], node, _primary());
@@ -397,7 +399,7 @@ class Parser {
     _skipSpaces();
     if (_accept('(') != null) {
       ++_parens;
-      var expr = _expression();
+      var expr = _expression(true);
       _expect(')');
       --_parens;
       if(_accept('%') != null) {
@@ -423,6 +425,8 @@ class Parser {
         return _url();
       case 'function':
         return _fncall();
+      case ':':
+        return new Literal(next[0]);
     }
   }
 

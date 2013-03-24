@@ -32,7 +32,7 @@ class Dimension extends Node {
   String unit;
 
   Dimension(value, [unit]) {
-    this.value = value is num ? value : int.parse(value);
+    this.value = value is num ? value : double.parse(value);
     this.unit = unit != null ? unit : '';
   }
 
