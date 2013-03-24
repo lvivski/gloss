@@ -41,9 +41,8 @@ class Lexer {
       }
     }
 
-    while (_indents.length > 0) {
-      _indents.removeLast();
-      tokens.add(['outdent']);
+    while (_stash.length > 0) {
+      tokens.add(_stashed());
     }
 
     tokens.add(['eos']);
