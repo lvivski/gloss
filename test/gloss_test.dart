@@ -23,4 +23,36 @@ void main() {
   :first-child {color: #f00}'''), equalsIgnoringWhitespace('html :first-child { color: #ff0000; }'));
     });
   });
+  
+  group('atrule', () {
+    test('can have simple rule', () {
+      expect(Gloss.parse('''
+@media all {
+  body
+    font-size: 1.5em
+}
+'''), equalsIgnoringWhitespace('@media all { body { font-size: 1.5em; } }'));
+    });
+    
+    test('can have comples rules', () {
+      expect(Gloss.parse('''
+@media all and (max-width: 699px) and (min-width: 520px), (min-width: 1151px) {
+  body
+    background: #ccc
+}
+'''), equalsIgnoringWhitespace('@media all and ( max-width : 699px ) and ( min-width : 520px ), ( min-width : 1151px ) { body { background: #cccccc; } }'));
+    });
+    
+    test('can have string', () {
+      expect(Gloss.parse('''
+@import "imported.css"
+'''), equalsIgnoringWhitespace('@import "imported.css";')); 
+    });
+    
+    test('can have url', () {
+      expect(Gloss.parse('''
+@import url(imported.css)
+'''), equalsIgnoringWhitespace('@import url(imported.css);')); 
+    });
+  });
 }
