@@ -47,7 +47,7 @@ class Dimension extends Node {
 
   operate(String op, Dimension other) {
     if ((op == '-' || op == '+') && other.unit == '%') {
-      other.value = value * (value / 100);
+      other.value = value * (other.value / 100);
     } else {
       other = coerce(other);
     }
