@@ -14,7 +14,7 @@ class HSLA extends Node {
     return 'hsla($h,${s.toStringAsFixed(0)},${l.toStringAsFixed(0)},a)';
   }
 
-  static fromRGBA(rgba) {
+  static fromRGBA(RGBA rgba) {
     num r = rgba.r / 255,
         g = rgba.g / 255,
         b = rgba.b / 255,
@@ -51,11 +51,11 @@ class HSLA extends Node {
   }
 }
 
-clampDegrees(n) {
+clampDegrees(num n) {
   n = n % 360;
   return n >= 0 ? n : 360 + n;
 }
 
-clampPercentage(n) => max(0, min(n, 100));
+clampPercentage(num n) => max(0, min(n, 100));
 
-clampAlpha(n) => max(0, min(n, 1));
+clampAlpha(num n) => max(0, min(n, 1));

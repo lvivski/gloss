@@ -1,7 +1,7 @@
 part of nodes;
 
 class Expression implements Node {
-  List nodes;
+  List<Node> nodes;
   bool isList;
 
   Expression([this.isList = false, this.nodes]) {
@@ -14,13 +14,13 @@ class Expression implements Node {
 
   get length => nodes.length;
 
-  push(node) => nodes.add(node);
+  push(Node node) => nodes.add(node);
 
   pop() => nodes.removeLast();
 
-  get(idx, [field = 'value']) {
-    if (nodes[idx]) {
-      return nodes[idx][field];
+  get(num idx) {
+    if (nodes[idx] != null) {
+      return nodes[idx].value;
     }
   }
 

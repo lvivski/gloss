@@ -39,7 +39,7 @@ class Parser {
 
   String get _currentState => _state.last;
 
-  parse() {
+  Stylesheet parse() {
     var block = _root;
     while (peek[0] != 'eos') {
       if (_accept('newline') != null) {
@@ -408,7 +408,7 @@ class Parser {
       _expect(')');
       --_parens;
       if(_accept('%') != null) {
-        expr.push('%');
+        expr.push(new Literal('%'));
       }
       return expr;
     }

@@ -1,7 +1,7 @@
 part of nodes;
 
 class Stylesheet implements Node {
-  List nodes;
+  List<Node> nodes;
 
   Stylesheet([this.nodes]) {
     if (this.nodes == null) {
@@ -9,11 +9,11 @@ class Stylesheet implements Node {
     }
   }
 
-  push(node) => nodes.add(node);
+  push(Node node) => nodes.add(node);
 
-  unshift(node) => nodes.insertRange(0, 1, node);
+  unshift(Node node) => nodes.insertRange(0, 1, node);
 
-  eval(env, [defOnly = false]) {
+  eval(env, [bool defOnly = false]) {
     if (defOnly) {
       nodes.forEach((node) {
         if (node is Definition || node is Declaration) {

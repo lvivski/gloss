@@ -5,11 +5,10 @@ import 'src/parser.dart';
 
 class Gloss {
   static String parse(String str) {
-    Parser parser = new Parser(str);
-    Env env = new Env();
-
-    var ast = parser.parse();
-    String css = ast.eval(env)
+    var parser = new Parser(str),
+        env = new Env(),
+        ast = parser.parse(),
+        css = ast.eval(env)
                  .css(env);
 
     return css;

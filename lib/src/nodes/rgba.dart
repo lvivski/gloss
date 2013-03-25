@@ -26,8 +26,8 @@ class RGBA extends Node implements Color {
     }
   }
 
-  static fromHSLA(hsla) {
-    var h = hsla.h / 360,
+  static fromHSLA(HSLA hsla) {
+    num h = hsla.h / 360,
         s = hsla.s / 100,
         l = hsla.l / 100,
         a = hsla.a,
@@ -36,7 +36,7 @@ class RGBA extends Node implements Color {
     var q = l < 0.5 ? l * (s + 1) : l + s - l * s,
         p = l * 2 - q;
 
-    hue(h) {
+    hue(num h) {
       if (h < 0) ++h;
       if (h > 1) --h;
       if (h < 1 / 6) {

@@ -1,7 +1,7 @@
 part of nodes;
 
 class Arguments extends Expression implements Node {
-  Map map;
+  Map<String, Node> map;
 
   Arguments([isList, nodes]): super(isList, nodes), map = {};
 

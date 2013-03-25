@@ -1,6 +1,6 @@
 part of nodes;
 class Params extends Node {
-  List nodes;
+  List<Node> nodes;
 
   Params([this.nodes]) {
     if (this.nodes == null) {
@@ -10,5 +10,5 @@ class Params extends Node {
 
   get length => nodes.length;
 
-  push(node) => nodes.add(node);
+  push(Node node) => nodes.add(node);
 }

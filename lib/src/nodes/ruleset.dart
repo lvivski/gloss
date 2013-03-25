@@ -1,7 +1,7 @@
 part of nodes;
 
 class Ruleset implements Node {
-  List selectors;
+  List<Selector> selectors;
   Block block;
 
   Ruleset([this.selectors, this.block]) {
@@ -10,7 +10,7 @@ class Ruleset implements Node {
     }
   }
 
-  push(selector) => selectors.add(selector);
+  push(Selector selector) => selectors.add(selector);
 
   eval(env) {
     selectors = selectors.map((selector) => selector.eval(env)).toList();

@@ -66,7 +66,7 @@ class Dimension extends Node {
     return new Dimension(double.parse(other), this.unit);
   }
 
-  calc(op, a, b) {
+  calc(String op, num a, num b) {
     switch (op) {
       case '+':
         return a + b;
@@ -74,6 +74,7 @@ class Dimension extends Node {
         return a - b;
       case '*':
         return a * b;
+      case '/':
       case '%':
         return a / b;
     }
