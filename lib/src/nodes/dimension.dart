@@ -74,7 +74,7 @@ class Dimension extends Node {
         return a - b;
       case '*':
         return a * b;
-      case '/':
+      case '%':
         return a / b;
     }
   }

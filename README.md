@@ -71,7 +71,7 @@ output:
 ```
 
 ### Math
-You can use some arithmetics in your styles. `+` `-` `*` and `/` operators are available.
+You can use some arithmetics in your styles. `+` `-` `*` operators are available. `/` operator is reserved for font declaration, so it doesn't divide, use `%` instead.
 ```sass
 div
   width: 100px + 10%

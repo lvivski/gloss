@@ -32,11 +32,11 @@ class Expression implements Node {
   css(env) {
     var buff = new StringBuffer(),
         n = nodes.map((node) => node.css(env));
-
+    
     for (var i = 0, len = n.length; i < len; i++) {
       var last = i == (len - 1);
       buff.write(n.elementAt(i));
-      if (n.elementAt(i) == '/' || (len < i + 1 && n.elementAt(i + 1) == '/')) return;
+      if (n.elementAt(i) == '/' || (i + 1 < len && n.elementAt(i + 1) == '/')) continue;
       if (last) continue;
       buff.write(isList
         ? (env.compress > 4 ? ',' : ', ')

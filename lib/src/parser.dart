@@ -59,7 +59,7 @@ class Parser {
     throw new Exception(msg.replaceAll('{peek}', '"${peek[0]}"'));
   }
 
-  List<Object> get peek => _tokens[0];
+  List<Object> get peek => _stash.length > 0 ? _stash.last : _tokens[0];
 
   List get next {
     var tok = _stash.length > 0
@@ -385,7 +385,7 @@ class Parser {
       || (op = _accept('/')) != null
       || (op = _accept('%')) != null) {
       _operand = true;
-      if (op == '/' && _currentState == 'declaration' && _parens == 0) {
+      if (op[0] == '/' && _currentState == 'expression' && _parens == 0) {
         _stash.add(['literal', '/']);
         _operand = false;
         return node;
