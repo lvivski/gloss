@@ -4,18 +4,20 @@ Glamorous CSS preprocessor for Dart
 [![](https://drone.io/lvivski/gloss/status.png)](https://drone.io/lvivski/gloss/latest)
 
 ## Syntax
+[Nesting](#nesting) | [Indentation](#indentation) | [Variables](#variables) | [Mixins](#mixins) | [Math](#math) | [BIF](#bif)
+
 Gloss is the dynamic stylesheet language. It supports both regular CSS syntax and nested syntax. You can also create variables and mixins.
 
 ### Nesting
 You can use `&` to override the default selectors nesting order
-```css
+```sass
 .a {
-	.b & {
-		background: red
-	}
-	.c {
-		color: white
-	}
+  .b & {
+    background: red
+  }
+  .c {
+    color: white
+  }
 }
 ```
 will become
@@ -30,15 +32,15 @@ will become
 
 ### Indentation
 You can use curly braces or indentation for blocks
-```css
+```sass
 .a
-	.b
-		background: white
+  .b
+    background: white
 ```
 
 ### Variables
 To create a variable you simply assign it with `=` sign
-```css
+```sass
 button-color = overlay(#401010, #303030)
 .a
   color: button-color
@@ -52,7 +54,7 @@ produces
 
 ### Mixins
 Mixins can be used as a block of properties.
-```css
+```sass
 background-gradient(start, end)
   background: -webkit-linear-gradient(start, end);
   background: linear-gradient(start, end);
@@ -67,6 +69,23 @@ output:
   background: linear-gradient(#ff0000, #0000ff);
 }
 ```
+
+### Math
+You can use some arithmetics in your styles. `+` `-` `*` and `/` operators are available.
+```sass
+div
+  width: 100px + 10%
+```
+will produce
+```css
+div {
+  width: 110px;
+}
+```
+
+###BIF
+There are several built-in functions available for color blending:
+`multiply` `average` `substract` `difference` `negation` `screen` `exclusion` `overlay` `softlight` `hardlight` `colordodge` `colorburn` `lineardodge` `linearburn` `linearlight` `pinlight` `hardmix` `reflect` `glow` `phoenix`
 
 
 ## License
