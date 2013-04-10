@@ -14,7 +14,7 @@ class HSLA extends Node {
     return 'hsla($h,${s.toStringAsFixed(0)},${l.toStringAsFixed(0)},a)';
   }
 
-  static fromRGBA(RGBA rgba) {
+  static HSLA fromRGBA(RGBA rgba) {
     num r = rgba.r / 255,
         g = rgba.g / 255,
         b = rgba.b / 255,

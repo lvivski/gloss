@@ -1,5 +1,69 @@
 part of env;
 
+var modifiers = {
+  'adjust': (RGBA color, String property, Dimension amount) {
+    var hsla = HSLA.fromRGBA(color),
+        value = amount.value;
+    print((100 - hsla.l) * value / 100);
+    if (amount.unit == '%'){
+      num current;
+      switch (property) {
+        case 'hue':
+          current = hsla.h;
+          break;
+        case 'saturation':
+          current = hsla.s;
+          break;
+        case 'lightness':
+        case 'light':
+          current = hsla.l;
+          break;
+        default:
+          current = hsla.a;
+      }
+      value = (property == 'lightness' || property == 'light') && value > 0
+          ? (100 - hsla.l) * value / 100
+          : current * value / 100;
+    }
+    switch (property) {
+      case 'hue':
+        hsla.h += value;
+        break;
+      case 'saturation':
+        hsla.s += value;
+        break;
+      case 'lightness':
+      case 'light':
+        hsla.l += value;
+        break;
+      default:
+        hsla.a += value;
+    }
+    return RGBA.fromHSLA(hsla);
+  },              
+  'saturate': (color, amount) {
+    return modifiers['adjust'](color, 'saturation', amount);
+  },
+  'desaturate': (color, amount) {
+    amount.value *= -1;
+    return modifiers['adjust'](color, 'saturation', amount);
+  },
+  'lighten': (color, amount) {
+    return modifiers['adjust'](color, 'lightness', amount);
+  },
+  'darken': (color, amount) {
+    amount.value *= -1;
+    return modifiers['adjust'](color, 'lightness', amount);
+  },
+  'fadein': (color, amount) {
+    return modifiers['adjust'](color, 'alpha', amount);
+  },
+  'fadeout': (color, amount) {
+    amount.value *= -1;
+    return modifiers['adjust'](color, 'alpha', amount);
+  }
+};
+
 var modes = {
   'multiply': (a, b) => (a * b) / 255,
 
