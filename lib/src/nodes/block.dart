@@ -28,7 +28,6 @@ class Block implements Node {
     for (index = 0; index < nodes.length; ++index) {
       nodes[index] = nodes[index].eval(env);
     }
-
     if (env.compress > 2) {
       var nodesMap = {},
           compressed,
@@ -47,7 +46,7 @@ class Block implements Node {
           nodesMap[prop].add({
             'index': i,
             'side': shorthands[prop].indexOf(node.property),
-            'value': node['value']
+            'value': node.value
           });
         }
       }

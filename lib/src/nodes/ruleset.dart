@@ -39,7 +39,7 @@ class Ruleset implements Node {
       if (i > 0) {
         arr[i].forEach((selector) {
           selector = selector.css(env);
-          buff.insertRange(0, 1, selector);
+          buff.insert(0, selector);
           compile(arr, i - 1);
           buff.removeAt(0);
         });

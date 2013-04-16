@@ -7,7 +7,7 @@ class Binop extends Node {
   Binop(this.op, this.left, this.right);
 
   eval(env) {
-    var l = left.eval(env),
+    Dimension l = left.eval(env),
       r = right.eval(env);
     return l.operate(op, r).eval(env);
   }

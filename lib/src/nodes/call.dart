@@ -45,8 +45,8 @@ class Call implements Node {
 
     var mixin = fn.block.nodes.map((node) => node.eval(env)),
         len = block.nodes.length,
-        head = block.nodes.getRange(0, block.index),
-        tail = block.nodes.getRange(block.index + 1, len - block.index - 1);
+        head = block.nodes.getRange(0, block.index).toList(),
+        tail = len - block.index - 1 > 0 ? block.nodes.getRange(block.index + 1, len - block.index - 1) : [];
 
     head.addAll(mixin);
     head.addAll(tail);

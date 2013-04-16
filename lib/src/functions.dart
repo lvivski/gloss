@@ -40,7 +40,7 @@ var modifiers = {
         hsla.a += value;
     }
     return RGBA.fromHSLA(hsla);
-  },              
+  },
   'saturate': (color, amount) {
     return modifiers['adjust'](color, 'saturation', amount);
   },
@@ -77,7 +77,7 @@ var modes = {
 
   'negation': (a, b) => 255 - (255 - a - b).abs(),
 
-  'screen': (a, b) => 255 - (((255 - a) * (255 - b)) >> 8),
+  'screen': (a, b) => 255 - (((255 - a) * (255 - b)).toInt() >> 8),
 
   'exclusion': (a, b) => a + b - 2 * a * b / 255,
 
@@ -93,7 +93,7 @@ var modes = {
 
   'colordodge': (a, b) => b == 255 ? b : min(255, ((a << 8 ) / (255 - b))),
 
-  'colorburn': (a, b) => b == 0 ? b : max(0, (255 - ((255 - a) << 8 ) / b)),
+  'colorburn': (a, b) => b == 0 ? b : max(0, (255 - ((255 - a).toInt() << 8 ) / b)),
 
   'lineardodge': (a, b) => modes['add'](a, b),
 

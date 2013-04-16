@@ -42,7 +42,7 @@ class Rewriter {
     };
     Action action = (token, i) {
       var tok = ['}'];
-      _tokens.insertRange(i, 1, tok);
+      _tokens.insert(i, tok);
     };
 
     return _scan((token, i, tokens) {
@@ -65,7 +65,7 @@ class Rewriter {
       sameLine = true;
       stack.add(['{']);
       var tok = ['{'];
-      tokens.insertRange(i - 1, 1, tok);
+      tokens.insert(i - 1, tok);
 
       _detectEnd(i + 2, condition, action);
       return 1;

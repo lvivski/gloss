@@ -11,7 +11,7 @@ class Stylesheet implements Node {
 
   push(Node node) => nodes.add(node);
 
-  unshift(Node node) => nodes.insertRange(0, 1, node);
+  unshift(Node node) => nodes.insert(0, node);
 
   eval(env, [bool defOnly = false]) {
     if (defOnly) {
