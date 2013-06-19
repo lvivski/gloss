@@ -15,6 +15,7 @@ background-gradient(start, end) {
   color: red
   background: url(image.png),#fff
   background: #fff, #000
+  margin-top: 10px
   &:hover
     color: add(blue, green)
     margin: 10 + 15px

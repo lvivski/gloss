@@ -9,9 +9,9 @@ typedef void Action(List token, num i);
 class Rewriter {
   List<List<String>> _tokens;
 
-  const EXPRESSION_START = const ['{', 'indent'],
-    EXPRESSION_END = const ['}', 'outdent'],
-    LINEBREAKS = const ['newline', 'indent', 'outdent'];
+  var EXPRESSION_START = ['{', 'indent'],
+    EXPRESSION_END = ['}', 'outdent'],
+    LINEBREAKS = ['newline', 'indent', 'outdent'];
 
   Rewriter(this._tokens);
 

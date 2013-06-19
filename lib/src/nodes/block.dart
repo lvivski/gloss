@@ -38,7 +38,7 @@ class Block implements Node {
         node = nodes[i];
         if (
           node is Declaration
-          && shorthands[prop = node.property.replaceAll(new RegExp(r'-?(top|right|bottom|left)'), '')]
+          && shorthands[prop = node.property.replaceAll(new RegExp(r'-?(top|right|bottom|left)'), '')] != null
         ) {
           if (nodesMap[prop] == null) {
             nodesMap[prop] = [];
@@ -51,18 +51,18 @@ class Block implements Node {
         }
       }
       nodesMap.keys.forEach((prop) {
-        if (compressed = compressProperties(nodesMap[prop])) {
-          node = nodes[compressed.index];
+        if ((compressed = compressProperties(nodesMap[prop])) != null) {
+          node = nodes[compressed['index']];
           node.property = prop;
           node.value = compressed['value'];
           node = node.eval(env);
           for(var i in compressed['toRemove']) {
-            nodes[compressed.toRemove[i]] = null;
+            nodes[i] = null;
           }
         }
       });
 
-      nodes = nodes.where((_) => !!_);
+      nodes = nodes.where((_) => _ != null).toList();
     }
 
     return this;
@@ -106,31 +106,33 @@ class Block implements Node {
         expr = new Expression(),
         index;
 
-    arr.forEach((node, i) {
-      if (i == 0) {
-        index = node.index;
+    expr.nodes = new List(4);
+
+    arr.forEach((node) {
+      if (arr.first == node) {
+        index = node['index'];
       } else {
-        toRemove.add(node.index);
+        toRemove.add(node['index']);
       }
-      if (node.side == -1) {
-        expr = node.value;
-        if (!expr.nodes[1]) {
-          expr.add(expr.nodes[0]);
+      if (node['side'] == -1) {
+        expr = node['value'];
+        if (expr.nodes.length < 2) {
+          expr.push(expr.nodes[0]);
         }
 
-        if (!expr.nodes[2]) {
-          expr.add(expr.nodes[0]);
+        if (expr.nodes.length < 3) {
+          expr.push(expr.nodes[0]);
         }
 
-        if (!expr.nodes[3]) {
-          expr.add(expr.nodes[1]);
+        if (expr.nodes.length < 4) {
+          expr.push(expr.nodes[1]);
         }
       } else {
-        expr.nodes[node.side] = node.value.nodes[0];
+        expr.nodes[node['side']] = node['value'].nodes[0];
       }
     });
 
-    if (expr.nodes.every((_) => !!_)) {
+    if (expr.nodes.every((_) => _ != null)) {
       return {
         'value': expr,
         'index': index,

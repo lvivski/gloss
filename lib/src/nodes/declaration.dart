@@ -25,7 +25,7 @@ class Declaration implements Node {
     value = value.eval(env);
 
     if (env.compress > 1) {
-      if (shorthands[this.property]) {
+      if (shorthands[this.property] != null) {
         var values = value;
         if (values.length >= 3 && values.get(1) == values.get(3)) {
           values.pop();

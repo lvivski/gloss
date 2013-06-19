@@ -19,7 +19,7 @@ class Expression implements Node {
   pop() => nodes.removeLast();
 
   get(num idx) {
-    if (nodes[idx] != null) {
+    if (idx < length && nodes[idx] != null) {
       return nodes[idx].value;
     }
   }
@@ -32,7 +32,7 @@ class Expression implements Node {
   css(env) {
     var buff = new StringBuffer(),
         n = nodes.map((node) => node.css(env));
-    
+
     for (var i = 0, len = n.length; i < len; i++) {
       var last = i == (len - 1);
       buff.write(n.elementAt(i));

@@ -42,7 +42,7 @@ class Env {
 
       scope.add(new Ident(name, function));
     }
-    
+
     for (var name in modifiers.keys) {
       var modifier = modifiers[name];
       scope.add(new Ident(name, modifier));

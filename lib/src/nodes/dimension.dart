@@ -35,7 +35,7 @@ class Dimension extends Node {
     this.value = value is num ? value : double.parse(value);
     this.unit = unit != null ? unit : '';
   }
-  
+
   parse(num n) {
     var i = n.toInt();
     if (i == n) {
@@ -84,7 +84,7 @@ class Dimension extends Node {
     var n = parse(this.value);
 
     if (env.compress > 0) {
-      var isFloat = n != (n | 0);
+      var isFloat = n != (n ~/ 1);
 
       if (unit != '%' && n == 0) {
         return '0';
