@@ -30,8 +30,9 @@ class Env {
       scope.add(node);
     }
 
-    for (var name in modes.keys) {
-      var mode = modes[name],
+    var modesList = modes();
+    for (var name in modesList.keys) {
+      var mode = modesList[name],
           function = (color1, color2) {
             var r = mode(color1.r, color2.r),
                 g = mode(color1.g, color2.g),
@@ -43,11 +44,11 @@ class Env {
       scope.add(new Ident(name, function));
     }
 
-    for (var name in modifiers.keys) {
-      var modifier = modifiers[name];
+    var modifiersList = modifiers();
+    for (var name in modifiersList.keys) {
+      var modifier = modifiersList[name];
       scope.add(new Ident(name, modifier));
     }
-
   }
 
   lookup(name) {

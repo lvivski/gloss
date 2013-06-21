@@ -1,9 +1,8 @@
 part of env;
 
-var modifiers = new Map<String,Function>();
-var modes = new Map<String,Function>();
+modifiers() {
+  var modifiers = new Map<String,Function>();
 
-main() {
   modifiers['adjust'] = (RGBA color, String property, Dimension amount) {
     var hsla = HSLA.fromRGBA(color),
         value = amount.value;
@@ -72,6 +71,12 @@ main() {
     return modifiers['adjust'](color, 'alpha', amount);
   };
 
+  return modifiers;
+}
+
+modes() {
+  var modes = new Map<String,Function>();
+
   modes['multiply'] = (a, b) => (a * b) / 255;
 
   modes['average'] = (a, b) => (a + b) / 2;
@@ -125,4 +130,6 @@ main() {
   modes['glow'] = (a, b) => modes['reflect'](b, a);
 
   modes['phoenix'] = (a, b) => min(a, b) - max(a, b) + 255;
+
+  return modes;
 }
