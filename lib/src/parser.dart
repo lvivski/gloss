@@ -247,7 +247,7 @@ class Parser {
     _state.add('atrule');
     atrule.expression = _list();
     if (peek[0] == '{') {
-      atrule.block = _block();  
+      atrule.block = _block();
     }
     _state.removeLast();
     return atrule;
@@ -352,13 +352,13 @@ class Parser {
     Node node;
 
     _state.add('expression');
-    if (?parens) {
+    if (parens != null) {
       expr.push(new Literal('('));
     }
     while ((node = _additive()) != null) {
       expr.push(node);
     }
-    if (?parens) {
+    if (parens != null) {
       expr.push(new Literal(')'));
     }
     _state.removeLast();

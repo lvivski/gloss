@@ -1,6 +1,5 @@
 library nodes;
 
-import 'dart:json';
 import 'dart:math';
 
 part 'scope.dart';

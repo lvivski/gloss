@@ -100,7 +100,7 @@ class Block implements Node {
   }
 
   compressProperties(arr) {
-    if (arr.length < 2) return;
+    if (arr.length < 2) return null;
 
     var toRemove = [],
         expr = new Expression(),
@@ -139,5 +139,6 @@ class Block implements Node {
         'toRemove': toRemove
       };
     }
+    return null;
   }
 }

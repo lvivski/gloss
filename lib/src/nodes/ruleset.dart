@@ -51,7 +51,7 @@ class Ruleset implements Node {
               if (buff[i].indexOf('&') != -1) {
                 selector = buff[i].replaceAll('&', selector).trim();
               } else {
-                selector = selector.concat(' ${buff[i].trim()}');
+                selector += ' ${buff[i].trim()}';
               }
             }
           }
