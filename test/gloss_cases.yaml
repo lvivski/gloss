@@ -1,0 +1,87 @@
+'selector':
+  'can be a tag':
+    - code: 'html {}'
+      transformer: 'parser'
+      match:
+        policy: 'length'
+        value: 0
+      
+    - code: 'html { color:black }'
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: 'html { color: #000000; }'
+        
+  'can have nesting':
+    - code: >
+              html
+                  a
+                      color: #00f
+                      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: 'html a { color: #0000ff; }'
+        
+    - code: >
+              html
+                  a
+                      color: #00f;
+                      &:hover
+                          color: #f00
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: 'html a { color: #0000ff; } html a:hover { color: #ff0000; }'
+
+    - code: >
+              html
+                  :first-child {color: #f00}
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: 'html :first-child { color: #ff0000; }'
+        
+'atrule':
+  'can have simple rule':
+    - code: >
+              @media all
+                  body
+                      font-size: 1.5em
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: '@media all { body { font-size: 1.5em; } }'
+        
+  'can have complex rules':
+    - code: >
+              @media all and (max-width: 699px) and (min-width: 520px), (min-width: 1151px)
+                  body
+                      background: #ccc
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: '@media all and ( max-width : 699px ) and ( min-width : 520px ), ( min-width : 1151px ) { body { background: #cccccc; } }'
+        
+  'can have string':
+    - code: >
+              @import "imported.css"
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: '@import "imported.css";'
+        
+  'can have url':
+    - code: >
+              @import url(imported.css)
+      
+      transformer: 'parser'
+      match:
+        policy: 'noWhiteSpace'
+        value: '@import url(imported.css);'
+    
