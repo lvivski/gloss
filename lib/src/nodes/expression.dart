@@ -1,7 +1,7 @@
 part of nodes;
 
 class Expression implements Node {
-  List<Node> nodes;
+  List nodes;
   bool isList;
 
   Expression([this.isList = false, this.nodes]) {
