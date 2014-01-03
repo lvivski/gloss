@@ -89,7 +89,7 @@ class Parser {
 
     while (i++ < _tokens.length) {
       var la = lookahead(i++);
-      if (['indent', 'outdent', 'newline'].indexOf(la[0]) != -1) {
+      if (['indent', 'outdent', 'newline'].contains(la[0])) {
         return false;
       }
       if (la[0] == tag) {
@@ -100,7 +100,7 @@ class Parser {
   }
 
   void _skipWhitespace() {
-    while (['space', 'indent', 'outdent', 'newline'].indexOf(peek[0]) != -1) {
+    while (['space', 'indent', 'outdent', 'newline'].contains(peek[0])) {
       next;
     }
   }
@@ -124,7 +124,8 @@ class Parser {
 
   bool _isSelectorToken(int i) {
     var la = lookahead(i)[0];
-    return _selectorTokens.indexOf(la) != -1;
+    
+    return _selectorTokens.contains(la);
   }
 
   Node _statement() {
