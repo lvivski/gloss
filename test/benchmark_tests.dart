@@ -24,10 +24,11 @@ void main() {
 
         for (var i = 0, len = testCase.length; i < len; i++) {
           final spec = testCase[0];
+          final transformer = spec['transformer']; 
 
           stopWatch.start();
           
-          switch (spec['transformer']) {
+          switch (transformer) {
             case 'parser':
               Gloss.parse(spec['code']);
                   
@@ -41,9 +42,8 @@ void main() {
               break;
           }
           
-          
           stopWatch.stop();
-          print("TRANSFORM: ${groupName}/${testCaseName} #${i+1}: took ${stopWatch.elapsedMilliseconds} ms");
+          print("${transformer.toUpperCase()}: ${groupName}/${testCaseName} #${i+1}: took ${stopWatch.elapsedMilliseconds} ms");
           stopWatch.reset();
         }           
       }
