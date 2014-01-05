@@ -1,7 +1,3 @@
-import '../lib/gloss.dart';
-
-main() {
-  var src =r'''
 @media all, screen
   body
     width: 500px
@@ -13,7 +9,7 @@ background-gradient(start, end) {
 
 .a
   color: red
-  background: url(image.png),#fff
+  background: url(image.png), #fff
   background: #fff, #000
   margin-top: 10px
   &:hover
@@ -23,6 +19,3 @@ background-gradient(start, end) {
     color: #ddd
     background-gradient: red, blue
   }
-''';
-  print(Gloss.parse(src));
-}
