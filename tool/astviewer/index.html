@@ -16,7 +16,12 @@
 			<div class="floatbox ast"></div>
 		</div>
 
-		<button class="button-lexer">Run Lexer</button>
+        <form action="#" method="get">
+            <button class="button-lexer" type="button">Run Lexer</button>
+            <input type="checkbox" id="performRewrite">
+            <label for="performRewrite">Perform Rewrite</label>
+        </form>
+		
 	</div>
 	<script type="application/dart" src="astviewer.dart"></script>
 	<script src="packages/browser/dart.js"></script>
