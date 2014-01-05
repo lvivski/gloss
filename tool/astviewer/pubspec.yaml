@@ -1,0 +1,10 @@
+name: gloss-astviewer
+version: 0.1.0
+author: Marty Glaubitz <martyglaubitz@gmail.com>
+description: ASt Viewer for Gloss Sourcetrees
+homepage: http://github.com/lvivski/gloss
+environment:
+  sdk: '>=0.8.10+6 <2.0.0'
+dependencies:
+  gloss: '0.1.2'
+  browser: '0.9.1'
