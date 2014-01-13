@@ -48,7 +48,7 @@ class Ruleset implements Node {
           selector = selector.css(env);
           if (buff.length > 0) {
             for (var i = 0, len = buff.length; i < len; i++) {
-              if (buff[i].indexOf('&') != -1) {
+              if (buff[i].contains('&')) {
                 selector = buff[i].replaceAll('&', selector).trim();
               } else {
                 selector += ' ${buff[i].trim()}';

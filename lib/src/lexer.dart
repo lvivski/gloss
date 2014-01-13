@@ -26,6 +26,7 @@ class Lexer {
     'paren': new RegExp('^[()]'),
     'sep': new RegExp('^;')
   };
+  
 
   Lexer(this._str);
 
@@ -57,11 +58,11 @@ class Lexer {
   }
 
   List get next {
-    var nodes = [_stashed, _comment, _atkeyword, _important, _url, _function, _brace, _paren, _hash,
+    final nodes = [_stashed, _comment, _atkeyword, _important, _url, _function, _brace, _paren, _hash,
              _klass, _string, _dimension, _ident, _indentation, _space, _matching, _operator, _sep];
     
-    return nodes.map((node) => node())
-        .firstWhere((List v) => v != null, orElse: (){ throw new Exception('parse error at:\n$_str'); });
+    return nodes.map((node) => node()).firstWhere((List v) => v != null, 
+        orElse: (){ throw new Exception('parse error at:\n$_str'); });
   }
 
   void _skip(len) {

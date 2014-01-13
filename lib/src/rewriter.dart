@@ -9,9 +9,9 @@ typedef void Action(List token, num i);
 class Rewriter {
   List<List<String>> _tokens;
 
-  var EXPRESSION_START = ['{', 'indent'],
-    EXPRESSION_END = ['}', 'outdent'],
-    LINEBREAKS = ['newline', 'indent', 'outdent'];
+  static final  EXPRESSION_START = ['{', 'indent'],
+                 EXPRESSION_END = ['}', 'outdent'],
+                 LINEBREAKS = ['newline', 'indent', 'outdent'];
 
   Rewriter(this._tokens);
 
@@ -26,6 +26,7 @@ class Rewriter {
       var token = _tokens[i];
       i += block(token, i, _tokens);
     }
+    
     return this;
   }
 
@@ -35,11 +36,13 @@ class Rewriter {
 
     Condition condition = (token, i) {
       var tag = token[0];
-      if (LINEBREAKS.indexOf(tag) != -1) {
+      if (LINEBREAKS.contains(tag)) {
         sameLine = false;
       }
+      
       return (tag == 'newline' || tag == 'outdent') && sameLine;
     };
+    
     Action action = (token, i) {
       var tok = ['}'];
       _tokens.insert(i, tok);
@@ -48,12 +51,12 @@ class Rewriter {
     return _scan((token, i, tokens) {
       var tag = token[0];
 
-      if (EXPRESSION_START.indexOf(tag) != -1) {
+      if (EXPRESSION_START.contains(tag)) {
         stack.add([(tag == 'indent' && tokens[i - 1][0] == '{' ? '{' : tag), i]);
         return 1;
       }
 
-      if (EXPRESSION_END.indexOf(tag) != -1) {
+      if (EXPRESSION_END.contains(tag)) {
         stack.removeRange(0, 1);
         return 1;
       }
@@ -82,11 +85,12 @@ class Rewriter {
       if (levels < 0) {
         return action(token, i);
       }
-      if (EXPRESSION_START.indexOf(token[0]) != -1) {
+      if (EXPRESSION_START.contains(token[0])) {
         ++levels;
-      } else if (EXPRESSION_END.indexOf(token[0]) != -1) {
+      } else if (EXPRESSION_END.contains(token[0])) {
         --levels;
       }
+      
       ++i;
     }
   }
